@@ -45,8 +45,14 @@ void simulation::begin()
 	}
 	while(!startSimulation);//keep showing the menu until the user decides to begin a simulation for a chosen disease
     
+    
+    
 	//#### Simulation is now beginning! ###
-	
+    
+    //Draw the CImg image to animate
+    CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+    CImgDisplay main_display(world,"Cellular Automaton");
+    
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
 	writeHtmlHeader();
@@ -63,6 +69,8 @@ void simulation::begin()
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
 		//printGridInfo();
         writeHtmlTable();
+        animateImage(world);
+        world.display(main_display);
 	}
     writeHtmlFooter();
 }
@@ -486,4 +494,39 @@ void simulation::writeHtmlFooter()
     }
     else
         std::cout << "[X] ERROR: Could not append footer to file \'" << this->chosenDisease.getName() << "_simulation.html\'\n";
+}
+
+void simulation::animateImage(CImg<unsigned char> &x)
+{
+    for(int i=0; i<dimension; i++)
+    {
+        for(int j=0; j<dimension; j++)
+        {
+            if(this->grid[i][j].getStatus() == susceptible)
+            {
+                unsigned char color[] = {255,255,0};//yellow
+                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+            }
+            else if(this->grid[i][j].getStatus() == vaccinated)
+            {
+                unsigned char color[] = {255,0,0};//red
+                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+            }
+            else if(this->grid[i][j].getStatus() == infected)
+            {
+                unsigned char color[] = {0,255,0};//green
+                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+            }
+            else if(this->grid[i][j].getStatus() == immune)
+            {
+                unsigned char color[] = {0,0,255};//blue
+                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+            }
+            else if(this->grid[i][j].getStatus() == dead)
+            {
+                unsigned char color[] = {0,0,0};//black
+                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+            }
+        }
+    }
 }

@@ -16,6 +16,12 @@
 #include "entity.h"
 #include "disease.h"
 
+#include <omp.h>
+#include "CImg.h"
+
+using namespace cimg_library;
+using namespace std;
+
 const int dimension = 50;
 const std::string diseaseListFileName = "diseaseList.txt";
 
@@ -68,6 +74,7 @@ public:
 	void writeHtmlHeader();
 	void writeHtmlTable();
 	void writeHtmlFooter();
+    void animateImage(CImg<unsigned char> &x);
 };
 
 #endif /* defined(__epiViz__simulation__) */
