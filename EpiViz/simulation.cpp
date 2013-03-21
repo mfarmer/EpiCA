@@ -50,22 +50,19 @@ void simulation::begin()
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
 	writeHtmlHeader();
+    writeHtmlTable();
     
 	//Loop through each day of the simulation, trying to spread infection each day until maxDays is reached or no one is infected anymore
 	this->currentDay = 0;
-	std::cout << "Infection Queue Size: " << this->infectionQueue.size() << std::endl;
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
 	{
-		std::cout << "[!] DAY " << this->currentDay << std::endl;
 		spreadInfection();
 		//spreadVaccination();
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
-		printGridInfo();
+		//printGridInfo();
         writeHtmlTable();
-        
-		std::cout << "Infection Queue Size: " << this->infectionQueue.size() << std::endl;
 	}
     writeHtmlFooter();
 }
@@ -88,7 +85,6 @@ void simulation::initializeGrid()
 
 void simulation::randomlyInfectFirstEntity()
 {
-	std::cout << "[!] Randomly infecting first entity...\n";
     int row = rand()%dimension;
     int col = rand()%dimension;
     
@@ -101,7 +97,6 @@ void simulation::randomlyInfectFirstEntity()
 
 void simulation::spreadVaccination()
 {
-	std::cout << "[!] Spreading vaccinations...\n";
 	//Are we allowed to vaccinate
 	if(this->chosenDisease.getDaysBeforeVaccinationAvailable() >= this->currentDay)
 	{
@@ -151,7 +146,6 @@ void simulation::spreadVaccination()
 
 void simulation::spreadInfection()
 {
-	std::cout << "[!] Spreading infections....\n";
 	//Loop through all entities in the infection queue
     for(std::list<entity>::iterator it=this->infectionQueue.begin(); it != this->infectionQueue.end(); ++it)
     {
@@ -166,7 +160,6 @@ void simulation::spreadInfection()
 		//Should this infected entity enter the removed state?
         else if((*it).getDaysInfected() > this->chosenDisease.getDaysInfectionLasts())
 		{
-			std::cout << "[!] Days Infected: " << (*it).getDaysInfected() << " > " << this->chosenDisease.getDaysInfectionLasts() << std::endl;
 			//This infected entity should enter the removed state.
 			determineRemovedState((*it).getRow(),(*it).getCol());
 			
@@ -199,7 +192,6 @@ void simulation::spreadInfection()
 
 void simulation::determineRemovedState(int row, int col)
 {
-	std::cout << "[!] Determine removed state....\n";
 	int diceRoll = rand()%100;
 	
 	worldWrap(row,col);
@@ -211,7 +203,6 @@ void simulation::determineRemovedState(int row, int col)
 	}
 	else
 		this->grid[row][col].setStatus(immune);
-	std::cout << "[!] Leaving Determine Remove State...\n";
 }
 
 void simulation::attemptVaccinationAt(int row, int col)
@@ -476,6 +467,7 @@ void simulation::writeHtmlTable()
             }
             outfile << "</tr>";
         }
+        outfile << "</table>";
         outfile.close();
     }
     else
