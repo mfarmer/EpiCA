@@ -12,6 +12,14 @@
 
 <h3><i>How to Use</i></h3>
 
+<ol>
+<li>Clone the project<br/>
+<code>git clone git://github.com/MFarmer/EpiViz.git</code>
+</li>
+<li>Compile
+<code>g++ -o epiViz main.cpp disease.cpp entity.cpp simulation.cpp -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -fopenmp
+</li></code>
+
 Simulation Parameters:
 <ul>
 <li>Disease Name: What name is the disease identified as?</li>
