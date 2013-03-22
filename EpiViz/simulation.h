@@ -15,6 +15,7 @@
 #include <fstream>
 #include "entity.h"
 #include "disease.h"
+#include "zone.h"
 
 #include <omp.h>
 #include "CImg.h"
@@ -42,6 +43,7 @@ private:
 	std::list<entity> infectionQueue;
 	std::list<disease> diseaseQueue;
 	std::list<entity> vaccinationQueue;
+	std::list<zone> zoneQueue;
 	
 	disease chosenDisease;
 	
@@ -70,6 +72,7 @@ private:
 	void attemptVaccinationAt(int row, int col);
 	void determineRemovedState(int row, int col);
 	void askForDiseaseParameters(disease &b);
+	void placeInitialVaccinations();
 	
 	//Input Validation
 	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);

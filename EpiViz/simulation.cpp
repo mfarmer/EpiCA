@@ -65,7 +65,7 @@ void simulation::startSimulation()
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
 	{
 		spreadInfection();
-		//spreadVaccination();
+		spreadVaccination();
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
@@ -130,8 +130,6 @@ void simulation::spreadVaccination()
 		{
 			for(std::list<entity>::iterator it=this->vaccinationQueue.begin(); it != this->vaccinationQueue.end(); ++it)
 			{
-				// Get a copy of the first vaccinated entity at the front of the queue
-				
 				//if the entity is newly vaccinated, I don't want to allow this person to vaccinate anyone yet. I'll flip their status, though, for next time
 				if((*it).isNewlyVaccinated())
 				{
@@ -150,6 +148,33 @@ void simulation::spreadVaccination()
 					attemptVaccinationAt((*it).getRow()-1,(*it).getCol()-1);//top left
 				}
 			}
+		}
+	}
+}
+
+void simulation::placeInitialVaccinations()
+{	
+	//LET'S ASSUME DIMENSIONS MUST BE DIVISIBLE BY 5
+	
+	//LOOPS THROUGH GRID ZONE BY ZONE
+	for(int i=0; i<dimension; i+=5)
+	{
+		for(int j=0; j<dimension; j+=5)
+		{
+			//Create a zone with an average weight of 0 intially and an xCor, yCor of 0
+			zone a(0,i,j);
+			
+			//LOOPS THROUGH A 5X5 ZONE TO CALCULATE AVERAGE STATUS VALUE
+			int zoneStatusAverage = 0;
+			for(int xCor = i; xCor < 5; xCor++)
+			{
+				for(int yCor = j; yCor < 5; yCor++)
+				{
+					zoneStatusAverage += this->grid[xCor][yCor].getStatus();
+				}
+			}
+			a.setStatusAverage(zoneStatusAverage/25);
+			this->zoneQueue.push_back(a);
 		}
 	}
 }

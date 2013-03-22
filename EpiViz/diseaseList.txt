@@ -1,5 +1,5 @@
 
-cold
+Cold
 10
 10
 10
@@ -15,11 +15,19 @@ hot_fever
 2
 2
 0
-bird_flu
+Bird_Flu
 3
 3
 3
 3
 3
 3
+0
+Friday
+7
+7
+7
+7
+7
+7
 0
