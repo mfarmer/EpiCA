@@ -36,24 +36,24 @@ private:
     int immunePopulation;
     int deadPopulation;
     
-    //Grid of entities
     entity grid[dimension][dimension];
     
-    //Queue of Infected entities
-    std::list<entity> infectionQueue;
-	
-	//Queue of Diseases
+	std::list<entity> infectionQueue;
 	std::list<disease> diseaseQueue;
-	
-	//Queue of vaccinations
 	std::list<entity> vaccinationQueue;
 	
 	disease chosenDisease;
-    
-public:
-    simulation(int maxDay);
-    void begin();
-    void randomlyInfectFirstEntity();
+	
+	//Private Methods
+    void startSimulation();
+	void initializeGrid();
+	
+	//Output
+	void writeHtmlHeader();
+	void writeHtmlTable();
+	void writeHtmlFooter();
+    void animateImage(CImg<unsigned char> &x);
+	void randomlyInfectFirstEntity();
     void spreadInfection();
 	void spreadVaccination();
 	void dispatchVaccinationPods();
@@ -67,14 +67,10 @@ public:
 	void loadDiseaseList();
 	void attemptInfectionAt(int row, int col);
 	void attemptVaccinationAt(int row, int col);
-	void determineRemovedState(int row, int col);
-	void initializeGrid();
-	
-	//Output
-	void writeHtmlHeader();
-	void writeHtmlTable();
-	void writeHtmlFooter();
-    void animateImage(CImg<unsigned char> &x);
+	void determineRemovedState(int row, int col);	
+public:
+    simulation(int maxDay);
+    void begin();
 };
 
 #endif /* defined(__epiViz__simulation__) */

@@ -28,7 +28,7 @@ simulation::simulation(int maxDay)
 
 void simulation::begin()
 {
-	bool startSimulation = false;
+	bool userInitiateSimulation = false;
 	initializeGrid();
 	
 	//I need to provide an interface for the user to specify which disease should be simulated
@@ -41,17 +41,20 @@ void simulation::begin()
 		
 		//Ask the user if they would like to continue with this disease choice
 		std::cout << "\n[?] Would you like to begin the simulation? (1=YES, 0=NO): ";
-		std::cin >> startSimulation;
+		std::cin >> userInitiateSimulation;
 	}
-	while(!startSimulation);//keep showing the menu until the user decides to begin a simulation for a chosen disease
+	while(!userInitiateSimulation);//keep showing the menu until the user decides to begin a simulation for a chosen disease
     
-    
-    
+    startSimulation();
+}
+
+void simulation::startSimulation()
+{
 	//#### Simulation is now beginning! ###
     
     //Draw the CImg image to animate
-    CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-    CImgDisplay main_display(world,"Cellular Automaton");
+    //CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+    //CImgDisplay main_display(world,"Cellular Automaton");
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -69,8 +72,8 @@ void simulation::begin()
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
 		//printGridInfo();
         writeHtmlTable();
-        animateImage(world);
-        world.display(main_display);
+        //animateImage(world);
+        //world.display(main_display);
 	}
     writeHtmlFooter();
 }
@@ -256,12 +259,12 @@ void simulation::worldWrap(int &row, int &col)
 {
 	if(row < 0)
 		row = dimension - 1;
-	else if(row > dimension)
+	else if(row >= dimension)
 		row = 0;
 	
 	if(col < 0)
 		col = dimension - 1;
-	else if(col > dimension)
+	else if(col >= dimension)
 		col = 0;
 }
 
