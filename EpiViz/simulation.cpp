@@ -58,11 +58,13 @@ void simulation::startSimulation()
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
+	
+	this->currentDay = 0;
+	
 	writeHtmlHeader();
     writeHtmlTable();
     
 	//Loop through each day of the simulation, trying to spread infection each day until maxDays is reached or no one is infected anymore
-	this->currentDay = 0;
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
 	{
 		spreadInfection();
@@ -298,18 +300,13 @@ disease simulation::printMainMenu()
 	int menuChoice;
 	
 	//Display a list of diseaes options for the user to choose from
-	std::cout << "\n+-------------------EpiViz v1.0-------------------+" << std::endl;
+	std::cout << "\n+-------------------EpiViz v" << epiVizVersionNumber << "-------------------+" << std::endl;
 	int numberOfOptionsPrinted;
-	//Allow the user to make a choice
-	do
-	{
-		std::cout << "\n[?] Please choose a disease to simulate below:" << std::endl;
-		numberOfOptionsPrinted = printDiseaseOptions();
-		std::cout << numberOfOptionsPrinted << ". Create New Disease" << std::endl << std::endl;
-		std::cout << "==> ";
-		std::cin >> menuChoice;
-	}
-	while(menuChoice <= 0 || menuChoice > numberOfOptionsPrinted);
+
+	std::cout << "\n[?] Please choose a disease to simulate below:" << std::endl;
+	numberOfOptionsPrinted = printDiseaseOptions();
+	std::cout << numberOfOptionsPrinted << ". Create New Disease" << std::endl << std::endl;
+	menuChoice = getValidInteger("==> ",1,numberOfOptionsPrinted);
 	
 	//Figure out which disease the user chose, and return it
 	return determineMenuChoice(menuChoice, numberOfOptionsPrinted);
@@ -345,18 +342,12 @@ disease simulation::createNewDisease()
     std::cout << "\n+-------------CREATE NEW DISEASE-----------------+" << std::endl;
 	std::cout << "Enter Disease Name: ";
 	std::cin >> name;
-	std::cout << "Enter Infection Probability: ";
-	std::cin >> infectionProbability;
-	std::cout << "Enter Death Probability: ";
-	std::cin >> deathProbability;
-	std::cout << "Enter Travel Probability: ";
-	std::cin >> travelProbability;
-	std::cout << "Enter Vaccination Probability: ";
-	std::cin >> vaccinationProbability;
-	std::cout << "Enter Days Infection Lasts: ";
-	std::cin >> daysInfectionLasts;
-	std::cout << "Enter Days Before Vaccination is Available: ";
-	std::cin >> daysBeforeVaccinationAvailable;
+	infectionProbability = getValidInteger("Enter Infection Probability: ",0,100);
+	deathProbability = getValidInteger("Enter Death Probability: ",0,100);
+	travelProbability = getValidInteger("Enter Travel Probability: ",0,100);
+	vaccinationProbability = getValidInteger("Enter Vaccination Probability: ",0,100);
+	daysInfectionLasts = getValidInteger("Enter Days Infection Lasts: ",1,this->maxDay);
+	daysBeforeVaccinationAvailable = getValidInteger("Enter Days Before Vaccination Available: ",0,this->maxDay);
 	std::cout << "+------------------------------------------------+" << std::endl;
 	
 	//Set the attributes of the disease
@@ -532,4 +523,33 @@ void simulation::animateImage(CImg<unsigned char> &x)
             }
         }
     }
+}
+
+int simulation::getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange)
+{
+	std::string userInput = "";
+	char * p;
+	int value;
+	
+	//Get the string input
+	do
+	{
+		do
+		{
+			std::cout << prompt;
+			cin >> userInput;
+		
+			//Check the characters for any non integer value
+			strtol(userInput.c_str(),&p,10);
+		}
+		//*p should = 0 if there were no bad characters in the string
+		while(*p != 0);
+		
+		value = atoi(userInput.c_str());
+	}
+	while(value < inclusiveLowRange || value > inclusiveHighRange);
+	
+	value = atoi(userInput.c_str());
+	
+	return value;
 }

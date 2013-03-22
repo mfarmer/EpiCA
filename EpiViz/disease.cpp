@@ -17,6 +17,7 @@ disease::disease()
     this->vaccinationProbability = 0;
     this->daysBeforeVaccinationAvailable = 0;
     this->daysInfectionLasts = 0;
+	this->immunizationAllowed = true;
 }
 
 disease::~disease()
@@ -59,6 +60,11 @@ void disease::setDaysBeforeVaccinationAvailable(unsigned short int n)
     this->daysBeforeVaccinationAvailable = n;
 }
 
+void disease::setImmunizationAllowed(bool x)
+{
+	this->immunizationAllowed = x;
+}
+
 unsigned short int disease::getInfectionProbability()
 {
     return this->infectionProbability;
@@ -94,6 +100,11 @@ std::string disease::getName()
 	return this->name;
 }
 
+bool disease::getImmunizationAllowed()
+{
+	return this->immunizationAllowed;
+}
+
 void disease::printInfo()
 {
     std::cout << std::left << "\n+----------------------------------------------+" << std::endl;
@@ -104,26 +115,6 @@ void disease::printInfo()
     std::cout << std::setw(42) << std::left << "| Travel Probability: " << std::setw(3) << std::right << this->travelProbability << "% |" << std::endl;
     std::cout << std::setw(42) << std::left << "| Days Infection Lasts: " << std::setw(4) << std::right << this->daysInfectionLasts << " |" << std::endl;
     std::cout << std::setw(42) << std::left << "| Day when Vaccination Available: " << std::setw(4) << std::right << this->daysBeforeVaccinationAvailable << " |" << std::endl;
-    std::cout << "+----------------------------------------------+" << std::endl;
-}
-
-void disease::setup()
-{
-    std::cout << "What is the name of the disease? ";
-    std::cin >> this->name;
-    
-    std::cout << "How long does an infection last? ";
-    std::cin >> this->daysInfectionLasts;
-    
-    std::cout << "What is the probability an entity becomes infected? ";
-    std::cin >> this->infectionProbability;
-    
-    std::cout << "What is the probability an entity will die due to an infection? ";
-    std::cin >> this->deathProbability;
-    
-    std::cout << "What is the probability an entity will become vaccinated? ";
-    std::cin >> this->vaccinationProbability;
-    
-    std::cout << "What day are vaccinations made available? ";
-    std::cin >> this->daysBeforeVaccinationAvailable;
+    std::cout << std::setw(42) << std::left << "| Immunization Allowed: " << std::setw(4) << std::right << this->daysBeforeVaccinationAvailable << " |" << std::endl;
+	std::cout << "+----------------------------------------------+" << std::endl;
 }

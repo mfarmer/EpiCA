@@ -23,6 +23,7 @@ using namespace cimg_library;
 using namespace std;
 
 const int dimension = 50;
+const float epiVizVersionNumber = 1.0;
 const std::string diseaseListFileName = "diseaseList.txt";
 
 class simulation
@@ -57,8 +58,6 @@ private:
     void spreadInfection();
 	void spreadVaccination();
 	void dispatchVaccinationPods();
-	void printSimulationInfo();
-	void printGridInfo();
 	int printDiseaseOptions();
 	void worldWrap(int &row, int &col);
 	disease printMainMenu();
@@ -67,10 +66,16 @@ private:
 	void loadDiseaseList();
 	void attemptInfectionAt(int row, int col);
 	void attemptVaccinationAt(int row, int col);
-	void determineRemovedState(int row, int col);	
+	void determineRemovedState(int row, int col);
+	
+	//Input Validation
+	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);
+	
 public:
     simulation(int maxDay);
     void begin();
+	void printSimulationInfo();
+	void printGridInfo();
 };
 
 #endif /* defined(__epiViz__simulation__) */

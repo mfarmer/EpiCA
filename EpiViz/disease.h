@@ -23,6 +23,7 @@ private:
     unsigned short int vaccinationProbability;
     unsigned short int daysInfectionLasts;
     unsigned short int daysBeforeVaccinationAvailable;
+	bool immunizationAllowed;
     
 public:
     disease();
@@ -34,7 +35,7 @@ public:
     void setVaccinationProbability(unsigned short int n);
     void setDaysInfectionLasts(unsigned short int n);
     void setDaysBeforeVaccinationAvailable(unsigned short int n);
-    
+	void setImmunizationAllowed(bool x);
 	std::string getName();
     unsigned short int getInfectionProbability();
     unsigned short int getDeathProbability();
@@ -42,9 +43,8 @@ public:
     unsigned short int getVaccinationProbability();
     unsigned short int getDaysInfectionLasts();
     unsigned short int getDaysBeforeVaccinationAvailable();
-    
+	bool getImmunizationAllowed();
     void printInfo();
-    void setup();
 };
 
 #endif /* defined(__epiViz__disease__) */
