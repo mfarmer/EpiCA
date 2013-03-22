@@ -49,8 +49,6 @@ void simulation::begin()
 
 void simulation::startSimulation()
 {
-	//#### Simulation is now beginning! ###
-    
     //Draw the CImg image to animate
     //CImg<unsigned char> world(dimension*10,dimension*10,1,3);
     //CImgDisplay main_display(world,"Cellular Automaton");
@@ -204,17 +202,26 @@ void simulation::spreadInfection()
 
 void simulation::determineRemovedState(int row, int col)
 {
-	int diceRoll = rand()%100;
-	
-	worldWrap(row,col);
-	
-	if(diceRoll < this->chosenDisease.getDeathProbability())
+	if(this->chosenDisease.getImmunizationAllowed())
 	{
-		//The entity is now deceased, as opposed to immune
-		this->grid[row][col].setStatus(dead);
+		int diceRoll = rand()%100;
+		
+		worldWrap(row,col);
+		
+		if(diceRoll < this->chosenDisease.getDeathProbability())
+		{
+			//The entity is now deceased, as opposed to immune
+			this->grid[row][col].setStatus(dead);
+		}
+		else
+		{
+			this->grid[row][col].setStatus(immune);
+		}
 	}
 	else
-		this->grid[row][col].setStatus(immune);
+	{
+		this->grid[row][col].setStatus(susceptible);
+	}
 }
 
 void simulation::attemptVaccinationAt(int row, int col)
@@ -336,7 +343,8 @@ disease simulation::createNewDisease()
 {
 	disease a;
 	std::string name;
-	short int infectionProbability, deathProbability, travelProbability, vaccinationProbability, daysBeforeVaccinationAvailable, daysInfectionLasts;
+	unsigned short int infectionProbability, deathProbability, travelProbability, vaccinationProbability, daysBeforeVaccinationAvailable, daysInfectionLasts;
+	int immunizationAllowed;
 	
     std::cout << "\n+-------------CREATE NEW DISEASE-----------------+" << std::endl;
 	std::cout << "Enter Disease Name: ";
@@ -345,8 +353,17 @@ disease simulation::createNewDisease()
 	deathProbability = getValidInteger("Enter Death Probability: ",0,100);
 	travelProbability = getValidInteger("Enter Travel Probability: ",0,100);
 	vaccinationProbability = getValidInteger("Enter Vaccination Probability: ",0,100);
-	daysInfectionLasts = getValidInteger("Enter Days Infection Lasts: ",1,this->maxDay);
-	daysBeforeVaccinationAvailable = getValidInteger("Enter Days Before Vaccination Available: ",0,this->maxDay);
+	if(vaccinationProbability > 0)
+	{
+		daysInfectionLasts = getValidInteger("Enter Days Infection Lasts: ",1,this->maxDay);
+		daysBeforeVaccinationAvailable = getValidInteger("Enter Days Before Vaccination Available: ",0,this->maxDay);
+	}
+	else
+	{
+		daysInfectionLasts = 0;
+		daysBeforeVaccinationAvailable = 0;
+	}
+	immunizationAllowed = getValidInteger("Is immunization allowed? (1=YES, 0=NO): ",0,1);
 	std::cout << "+------------------------------------------------+" << std::endl;
 	
 	//Set the attributes of the disease
@@ -357,6 +374,10 @@ disease simulation::createNewDisease()
 	a.setVaccinationProbability(vaccinationProbability);
 	a.setDaysInfectionLasts(daysInfectionLasts);
 	a.setDaysBeforeVaccinationAvailable(daysBeforeVaccinationAvailable);
+	if(immunizationAllowed == 1)
+		a.setImmunizationAllowed(true);
+	else
+		a.setImmunizationAllowed(false);
 	
 	//Save this disease in the disease list file
 	std::ofstream outfile;
@@ -367,7 +388,8 @@ disease simulation::createNewDisease()
 	outfile << a.getTravelProbability() << "\r\n";
 	outfile << a.getVaccinationProbability() << "\r\n";
 	outfile << a.getDaysInfectionLasts() << "\r\n";
-	outfile << a.getDaysBeforeVaccinationAvailable();
+	outfile << a.getDaysBeforeVaccinationAvailable() << "\r\n";
+	outfile << a.getImmunizationAllowed();
 	
 	//Put this disease onto the queue so that it will appear in the main menu
 	this->diseaseQueue.push_back(a);
@@ -398,12 +420,13 @@ void simulation::loadDiseaseList()
 		
 		disease a;
 		std::string name;
-		short int infectionProbability, deathProbability, travelProbability, vaccinationProbability, daysBeforeVaccinationAvailable, daysInfectionLasts;
+		unsigned short int infectionProbability, deathProbability, travelProbability, vaccinationProbability, daysBeforeVaccinationAvailable, daysInfectionLasts;
+		int immunizationAllowed;
 		
 		//Read the appropriate data from the input file
 		while(infile >> name)
 		{
-			infile >> infectionProbability >> deathProbability >> travelProbability >> vaccinationProbability >> daysBeforeVaccinationAvailable >> daysInfectionLasts;
+			infile >> infectionProbability >> deathProbability >> travelProbability >> vaccinationProbability >> daysBeforeVaccinationAvailable >> daysInfectionLasts >> immunizationAllowed;
 			
 			//Set the variables for my new disease based upon the data I just read from my input file
 			a.setName(name);
@@ -413,6 +436,7 @@ void simulation::loadDiseaseList()
 			a.setVaccinationProbability(vaccinationProbability);
 			a.setDaysBeforeVaccinationAvailable(daysBeforeVaccinationAvailable);
 			a.setDaysInfectionLasts(daysInfectionLasts);
+			a.setImmunizationAllowed(immunizationAllowed);
 			
 			//Add this disease to the end of my diseaseQueue
 			this->diseaseQueue.push_back(a);

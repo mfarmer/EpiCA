@@ -109,12 +109,13 @@ void disease::printInfo()
 {
     std::cout << std::left << "\n+----------------------------------------------+" << std::endl;
     std::cout << "| " << std::setw(40) << this->name << std::setw(4) << " " << " |" << std::endl;
+	std::cout << std::left << "+----------------------------------------------+" << std::endl;
     std::cout << std::setw(42) << "| Infection Probability: " << std::setw(3) << std::right << this->infectionProbability << "% |" << std::endl;
-    std::cout << std::setw(42) << std::left << "| Death Probability: " << std::setw(3) << std::right << this->deathProbability << "% |" << std::endl;
-    std::cout << std::setw(42) << std::left << "| Vaccination Probability: " << std::setw(3) << std::right << this->vaccinationProbability << "% |" << std::endl;
-    std::cout << std::setw(42) << std::left << "| Travel Probability: " << std::setw(3) << std::right << this->travelProbability << "% |" << std::endl;
     std::cout << std::setw(42) << std::left << "| Days Infection Lasts: " << std::setw(4) << std::right << this->daysInfectionLasts << " |" << std::endl;
-    std::cout << std::setw(42) << std::left << "| Day when Vaccination Available: " << std::setw(4) << std::right << this->daysBeforeVaccinationAvailable << " |" << std::endl;
-    std::cout << std::setw(42) << std::left << "| Immunization Allowed: " << std::setw(4) << std::right << this->daysBeforeVaccinationAvailable << " |" << std::endl;
+	std::cout << std::setw(42) << std::left << "| Death Probability: " << std::setw(3) << std::right << this->deathProbability << "% |" << std::endl;
+    std::cout << std::setw(42) << std::left << "| Travel Probability: " << std::setw(3) << std::right << this->travelProbability << "% |" << std::endl;
+    std::cout << std::setw(42) << std::left << "| Vaccination Probability: " << std::setw(3) << std::right << this->vaccinationProbability << "% |" << std::endl;
+	std::cout << std::setw(42) << std::left << "| Day when Vaccination Available: " << std::setw(4) << std::right << this->daysBeforeVaccinationAvailable << " |" << std::endl;
+    std::cout << std::setw(42) << std::left << "| Immunization Allowed: " << std::setw(4) << std::right << this->immunizationAllowed << " |" << std::endl;
 	std::cout << "+----------------------------------------------+" << std::endl;
 }
