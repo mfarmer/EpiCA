@@ -17,7 +17,7 @@
 <code>git clone git://github.com/MFarmer/EpiViz.git</code>
 </li>
 <li>Compile (Mac)
-<code>g++ -o epiViz main.cpp disease.cpp entity.cpp simulation.cpp -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -fopenmp
+<code>g++ -o epiViz main.cpp disease.cpp entity.cpp simulation.cpp zone.cpp -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -fopenmp
 </code></li>
 <li>Execute<br/><code>./epiViz</code></li>
 </ol>
