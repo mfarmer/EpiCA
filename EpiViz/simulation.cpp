@@ -28,7 +28,7 @@ simulation::simulation(int maxDay)
 
 void simulation::begin()
 {
-	bool userInitiateSimulation = false;
+	int userInitiateSimulation = 0;
 	initializeGrid();
 	
 	//I need to provide an interface for the user to specify which disease should be simulated
@@ -38,12 +38,11 @@ void simulation::begin()
 		this->chosenDisease = printMainMenu();
 		std::cout << "\n[!] You chose \'" << this->chosenDisease.getName() << "\'" << std::endl;
 		chosenDisease.printInfo();
-		
+		std::cout << '\n';
 		//Ask the user if they would like to continue with this disease choice
-		std::cout << "\n[?] Would you like to begin the simulation? (1=YES, 0=NO): ";
-		std::cin >> userInitiateSimulation;
+		userInitiateSimulation = getValidInteger("[?] Would you like to begin the simulation? (1=YES, 0=NO): ",0,1);
 	}
-	while(!userInitiateSimulation);//keep showing the menu until the user decides to begin a simulation for a chosen disease
+	while(userInitiateSimulation == 0);//keep showing the menu until the user decides to begin a simulation for a chosen disease
     
     startSimulation();
 }
