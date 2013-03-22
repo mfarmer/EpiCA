@@ -60,13 +60,16 @@ private:
 	void dispatchVaccinationPods();
 	int printDiseaseOptions();
 	void worldWrap(int &row, int &col);
-	disease printMainMenu();
-	disease determineMenuChoice(int n, int numberOfOptionsPrinted);
-	disease createNewDisease();
+	void printMainMenu();
+	void determineMenuChoice(int n, int numberOfOptionsPrinted);
+	void createNewDisease();
 	void loadDiseaseList();
+	void showDiseaseEditMenu();
+	void updateDiseaseList();
 	void attemptInfectionAt(int row, int col);
 	void attemptVaccinationAt(int row, int col);
 	void determineRemovedState(int row, int col);
+	void askForDiseaseParameters(disease &b);
 	
 	//Input Validation
 	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);

@@ -35,7 +35,7 @@ void simulation::begin()
 	do
 	{
 		//Show the menu, and allow the user to choose a disease. The chosen disease is returned here.
-		this->chosenDisease = printMainMenu();
+		printMainMenu();
 		std::cout << "\n[!] You chose \'" << this->chosenDisease.getName() << "\'" << std::endl;
 		chosenDisease.printInfo();
 		std::cout << '\n';
@@ -301,7 +301,7 @@ void simulation::printGridInfo()
 	}
 }
 
-disease simulation::printMainMenu()
+void simulation::printMainMenu()
 {
 	int menuChoice;
 	
@@ -311,18 +311,22 @@ disease simulation::printMainMenu()
 
 	std::cout << "\n[?] Please choose a disease to simulate below:" << std::endl;
 	numberOfOptionsPrinted = printDiseaseOptions();
-	std::cout << numberOfOptionsPrinted << ". Create New Disease" << std::endl << std::endl;
-	menuChoice = getValidInteger("==> ",1,numberOfOptionsPrinted);
+	std::cout << std::setw(2) << numberOfOptionsPrinted << ". *Create New Disease" << std::endl;
+	std::cout << std::setw(2) << numberOfOptionsPrinted+1 << ". *Edit Disease List" << std::endl << std::endl;
+	menuChoice = getValidInteger("==> ",1,numberOfOptionsPrinted+1);
 	
 	//Figure out which disease the user chose, and return it
-	return determineMenuChoice(menuChoice, numberOfOptionsPrinted);
+	//return determineMenuChoice(menuChoice, numberOfOptionsPrinted);
+	determineMenuChoice(menuChoice, numberOfOptionsPrinted);
 }
 
-disease simulation::determineMenuChoice(int n, int numberOfOptionsPrinted)
+void simulation::determineMenuChoice(int n, int numberOfOptionsPrinted)
 {
 	//User wants to create a new disease
 	if(n == numberOfOptionsPrinted)
-		return createNewDisease();
+		createNewDisease();
+	else if(n == numberOfOptionsPrinted+1)
+		showDiseaseEditMenu();
 	else
 	{
 		//Look through the disease queue until the chosen disease is found
@@ -335,13 +339,143 @@ disease simulation::determineMenuChoice(int n, int numberOfOptionsPrinted)
 		}
 		
 		//at this point, I have found my disease. I will reutrn the diseaes my queue iterator 'it' is pointing at
-		return (*it);
+		//return (*it);
+		this->chosenDisease = (*it);
 	}
 }
 
-disease simulation::createNewDisease()
+void simulation::showDiseaseEditMenu()
 {
+	std::cout << "\n[?] Which disease would you like to edit?\n\n";
+	int numberOfOptions = printDiseaseOptions();
+	int diseaseChoice = getValidInteger("\n==> ",1,numberOfOptions);
+	
+	//determineMenuChoice(diseaseChoice,numberOfOptions);
+	
+	std::list<disease>::iterator it = this->diseaseQueue.begin();
+	int count = 1;
+	while(count != diseaseChoice)
+	{
+		it++;
+		count++;
+	}
+	
+	std::cout << "\n[?] Which option would you like to edit?\n\n";
+	std::cout << "1. Name: " << (*it).getName() << std::endl;
+	std::cout << "2. Infection Probability: " << (*it).getInfectionProbability() << std::endl;
+	std::cout << "3. Days Infection Lasts: " << (*it).getDaysInfectionLasts() << std::endl;
+	std::cout << "4. Death Probability: " << (*it).getDeathProbability() << std::endl;
+	std::cout << "5. Travel Probability: " << (*it).getTravelProbability() << std::endl;
+	std::cout << "6. Vaccination Probability: " << (*it).getVaccinationProbability() << std::endl;
+	std::cout << "7. Day When Vaccination Available: " << (*it).getDaysBeforeVaccinationAvailable() << std::endl;
+	std::cout << "8. Immunization Allowed: " << (*it).getImmunizationAllowed() << std::endl;
+	
+	int choice = getValidInteger("\n==>",1,8);
+	std::cout << '\n';
+	switch(choice)
+	{
+		case 1:
+		{
+			std::string newName = "";
+			std::cout << "[?] Enter a new name: ";
+			std::cin >> newName;
+			(*it).setName(newName);
+			break;
+		}
+		case 2:
+		{
+			(*it).setInfectionProbability(getValidInteger("[?] Enter new infection probability: ",0,100));
+			break;
+		}
+		case 3:
+		{
+			(*it).setDaysInfectionLasts(getValidInteger("[?] Enter a new value for days infection lasts: ",0,this->maxDay));
+			break;
+		}
+		case 4:
+		{
+			(*it).setDeathProbability(getValidInteger("[?] Enter new death probability: ",0,100));
+			break;
+		}
+		case 5:
+		{
+			(*it).setTravelProbability(getValidInteger("[?] Enter new travel probability: ",0,100));
+			break;
+		}
+		case 6:
+		{
+			(*it).setVaccinationProbability(getValidInteger("[?] Enter new vaccination probability: ",0,100));
+			break;
+		}
+		case 7:
+		{
+			(*it).setDaysBeforeVaccinationAvailable(getValidInteger("[?] Enter a new value for days before vaccination available: ",0,this->maxDay));
+			break;
+		}
+		case 8:
+		{
+			(*it).setImmunizationAllowed(getValidInteger("[?] Enter a new value for immunization allowed: ",0,1));
+			break;
+		}
+		default://shouldn't happen due to 'getValidInteger' enforcing a 1-8 selection, but this is here just to be safe
+		{
+			std::cout << "[X] ERROR: Did not recognize disease edit choice. Ignoring request...\n";
+			break;
+		}
+	}
+	std::cout << "\n[!] Successful edit!" << std::endl;
+	
+	//I'd like to rewrite the diseaseList.txt
+	updateDiseaseList();
+	
+	//Set the updated disease to be my current, chosen disease
+	this->chosenDisease = (*it);
+}
+
+void simulation::updateDiseaseList()
+{
+	std::ofstream outfile;
+	outfile.open(diseaseListFileName.c_str());
+	for(std::list<disease>::iterator it=this->diseaseQueue.begin(); it != this->diseaseQueue.end(); ++it)
+	{
+		outfile << "\r\n" << (*it).getName() << "\r\n";
+		outfile << (*it).getInfectionProbability() << "\r\n";
+		outfile << (*it).getDeathProbability() << "\r\n";
+		outfile << (*it).getTravelProbability() << "\r\n";
+		outfile << (*it).getVaccinationProbability() << "\r\n";
+		outfile << (*it).getDaysInfectionLasts() << "\r\n";
+		outfile << (*it).getDaysBeforeVaccinationAvailable() << "\r\n";
+		outfile << (*it).getImmunizationAllowed();
+	}
+}
+
+
+void simulation::createNewDisease()
+{	
 	disease a;
+	
+	askForDiseaseParameters(a);
+	
+	//Save this disease in the disease list file
+	std::ofstream outfile;
+	outfile.open(diseaseListFileName.c_str(), std::ios::app);
+	outfile << "\r\n" << a.getName() << "\r\n";
+	outfile << a.getInfectionProbability() << "\r\n";
+	outfile << a.getDeathProbability() << "\r\n";
+	outfile << a.getTravelProbability() << "\r\n";
+	outfile << a.getVaccinationProbability() << "\r\n";
+	outfile << a.getDaysInfectionLasts() << "\r\n";
+	outfile << a.getDaysBeforeVaccinationAvailable() << "\r\n";
+	outfile << a.getImmunizationAllowed();
+	
+	//Put this disease onto the queue so that it will appear in the main menu
+	this->diseaseQueue.push_back(a);
+	
+	this->chosenDisease = a;
+}
+
+void simulation::askForDiseaseParameters(disease &b)
+{
 	std::string name;
 	unsigned short int infectionProbability, deathProbability, travelProbability, vaccinationProbability, daysBeforeVaccinationAvailable, daysInfectionLasts;
 	int immunizationAllowed;
@@ -367,35 +501,17 @@ disease simulation::createNewDisease()
 	std::cout << "+------------------------------------------------+" << std::endl;
 	
 	//Set the attributes of the disease
-	a.setName(name);
-	a.setInfectionProbability(infectionProbability);
-	a.setDeathProbability(deathProbability);
-	a.setTravelProbability(travelProbability);
-	a.setVaccinationProbability(vaccinationProbability);
-	a.setDaysInfectionLasts(daysInfectionLasts);
-	a.setDaysBeforeVaccinationAvailable(daysBeforeVaccinationAvailable);
+	b.setName(name);
+	b.setInfectionProbability(infectionProbability);
+	b.setDeathProbability(deathProbability);
+	b.setTravelProbability(travelProbability);
+	b.setVaccinationProbability(vaccinationProbability);
+	b.setDaysInfectionLasts(daysInfectionLasts);
+	b.setDaysBeforeVaccinationAvailable(daysBeforeVaccinationAvailable);
 	if(immunizationAllowed == 1)
-		a.setImmunizationAllowed(true);
+		b.setImmunizationAllowed(true);
 	else
-		a.setImmunizationAllowed(false);
-	
-	//Save this disease in the disease list file
-	std::ofstream outfile;
-	outfile.open(diseaseListFileName.c_str(), std::ios::app);
-	outfile << "\r\n" << a.getName() << "\r\n";
-	outfile << a.getInfectionProbability() << "\r\n";
-	outfile << a.getDeathProbability() << "\r\n";
-	outfile << a.getTravelProbability() << "\r\n";
-	outfile << a.getVaccinationProbability() << "\r\n";
-	outfile << a.getDaysInfectionLasts() << "\r\n";
-	outfile << a.getDaysBeforeVaccinationAvailable() << "\r\n";
-	outfile << a.getImmunizationAllowed();
-	
-	//Put this disease onto the queue so that it will appear in the main menu
-	this->diseaseQueue.push_back(a);
-	
-	//return to the 'simulation::begin' function so that the simulation knows what disease we are working with.
-	return a;
+		b.setImmunizationAllowed(false);
 }
 
 int simulation::printDiseaseOptions()
@@ -403,7 +519,7 @@ int simulation::printDiseaseOptions()
 	int count = 1;
 	for(std::list<disease>::iterator it=this->diseaseQueue.begin(); it != this->diseaseQueue.end(); ++it)
 	{
-		std::cout << count << ". " << (*it).getName() << std::endl;
+		std::cout << std::setw(2) << count << ". " << (*it).getName() << std::endl;
 		count++;
 	}
 	return count;
