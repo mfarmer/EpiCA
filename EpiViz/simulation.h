@@ -25,6 +25,7 @@ using namespace std;
 
 const int dimension = 50;
 const float epiVizVersionNumber = 1.0;
+const int animationSpeed = 175;
 const std::string diseaseListFileName = "diseaseList.txt";
 
 class simulation

@@ -50,8 +50,8 @@ void simulation::begin()
 void simulation::startSimulation()
 {
     //Draw the CImg image to animate
-    //CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-    //CImgDisplay main_display(world,"Cellular Automaton");
+    CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+    CImgDisplay main_display(world,"Cellular Automaton");
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -65,14 +65,17 @@ void simulation::startSimulation()
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
 	{
 		spreadInfection();
-		spreadVaccination();
+		//spreadVaccination();
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
 		//printGridInfo();
         writeHtmlTable();
-        //animateImage(world);
-        //world.display(main_display);
+        
+        for(int frame=0; frame<animationSpeed; frame++)
+            animateImage(world);
+        
+        world.display(main_display);
 	}
     writeHtmlFooter();
 }
@@ -113,17 +116,9 @@ void simulation::spreadVaccination()
 		//Are there any vaccinated entities in the grid yet?
 		if(this->vaccinationQueue.size() == 0)
 		{
-			//Try to vaccinate four zones which need the vaccinations the most!
-			/*if(dispatchVaccinationPods())
-             {
-             //I successfully dispatched at least one pod
-             }
-             else
-             {
-             //There was not enough room to dispatch a pod, so I shouldn't ever try again
-             //DO SOMETHING TO PREVENT TRYING TO SPREAD VACCINATIONS AGAIN
-             }
-             */
+			placeInitialVaccinations();
+            
+            //pause();
 		}
 		//Ok, I already have vaccinated entities in my queue. I will allow them to start vaccinating!
 		else
@@ -154,29 +149,26 @@ void simulation::spreadVaccination()
 
 void simulation::placeInitialVaccinations()
 {	
-	//LET'S ASSUME DIMENSIONS MUST BE DIVISIBLE BY 5
-	
-	//LOOPS THROUGH GRID ZONE BY ZONE
-	for(int i=0; i<dimension; i+=5)
-	{
-		for(int j=0; j<dimension; j+=5)
-		{
-			//Create a zone with an average weight of 0 intially and an xCor, yCor of 0
-			zone a(0,i,j);
-			
-			//LOOPS THROUGH A 5X5 ZONE TO CALCULATE AVERAGE STATUS VALUE
-			int zoneStatusAverage = 0;
-			for(int xCor = i; xCor < 5; xCor++)
-			{
-				for(int yCor = j; yCor < 5; yCor++)
-				{
-					zoneStatusAverage += this->grid[xCor][yCor].getStatus();
-				}
-			}
-			a.setStatusAverage(zoneStatusAverage/25);
-			this->zoneQueue.push_back(a);
-		}
-	}
+	int placedHospitals = 0;
+    int x, y;
+    int attempts = 0;
+    int upperLimit = dimension*dimension;
+    while(attempts < upperLimit && placedHospitals < 4)
+    {
+        x = rand()%dimension;
+        y = rand()%dimension;
+        
+        if(this->grid[x][y].getStatus() == susceptible)
+        {
+            this->grid[x][y].setStatus(vaccinated);
+            this->grid[x][y].flipNewlyVaccinated();
+            this->infectionQueue.push_back(this->grid[x][y]);
+            placedHospitals++;
+            std::cout << this->infectionQueue.size() << std::endl;
+        }
+        attempts++;
+    }
+    std::cout << "[!] Placed " << placedHospitals << "...\n";
 }
 
 void simulation::spreadInfection()
@@ -227,22 +219,19 @@ void simulation::spreadInfection()
 
 void simulation::determineRemovedState(int row, int col)
 {
-	if(this->chosenDisease.getImmunizationAllowed())
-	{
-		int diceRoll = rand()%100;
-		
-		worldWrap(row,col);
-		
-		if(diceRoll < this->chosenDisease.getDeathProbability())
-		{
-			//The entity is now deceased, as opposed to immune
-			this->grid[row][col].setStatus(dead);
-		}
-		else
-		{
-			this->grid[row][col].setStatus(immune);
-		}
-	}
+    int diceRoll = rand()%100;
+    
+    worldWrap(row,col);
+    
+    if(diceRoll < this->chosenDisease.getDeathProbability())
+    {
+        //The entity is now deceased, as opposed to immune
+        this->grid[row][col].setStatus(dead);
+    }
+    else if(this->chosenDisease.getImmunizationAllowed())
+    {
+        this->grid[row][col].setStatus(immune);
+    }
 	else
 	{
 		this->grid[row][col].setStatus(susceptible);
@@ -474,7 +463,6 @@ void simulation::updateDiseaseList()
 	}
 }
 
-
 void simulation::createNewDisease()
 {	
 	disease a;
@@ -509,17 +497,16 @@ void simulation::askForDiseaseParameters(disease &b)
 	std::cout << "Enter Disease Name: ";
 	std::cin >> name;
 	infectionProbability = getValidInteger("Enter Infection Probability: ",0,100);
+    daysInfectionLasts = getValidInteger("Enter Days Infection Lasts: ",1,this->maxDay);
 	deathProbability = getValidInteger("Enter Death Probability: ",0,100);
 	travelProbability = getValidInteger("Enter Travel Probability: ",0,100);
 	vaccinationProbability = getValidInteger("Enter Vaccination Probability: ",0,100);
 	if(vaccinationProbability > 0)
 	{
-		daysInfectionLasts = getValidInteger("Enter Days Infection Lasts: ",1,this->maxDay);
 		daysBeforeVaccinationAvailable = getValidInteger("Enter Days Before Vaccination Available: ",0,this->maxDay);
 	}
 	else
 	{
-		daysInfectionLasts = 0;
 		daysBeforeVaccinationAvailable = 0;
 	}
 	immunizationAllowed = getValidInteger("Is immunization allowed? (1=YES, 0=NO): ",0,1);
@@ -567,7 +554,7 @@ void simulation::loadDiseaseList()
 		//Read the appropriate data from the input file
 		while(infile >> name)
 		{
-			infile >> infectionProbability >> deathProbability >> travelProbability >> vaccinationProbability >> daysBeforeVaccinationAvailable >> daysInfectionLasts >> immunizationAllowed;
+			infile >> infectionProbability >> deathProbability >> travelProbability >> vaccinationProbability >> daysInfectionLasts >> daysBeforeVaccinationAvailable >> immunizationAllowed;
 			
 			//Set the variables for my new disease based upon the data I just read from my input file
 			a.setName(name);
@@ -575,8 +562,8 @@ void simulation::loadDiseaseList()
 			a.setDeathProbability(deathProbability);
 			a.setTravelProbability(travelProbability);
 			a.setVaccinationProbability(vaccinationProbability);
+            a.setDaysInfectionLasts(daysInfectionLasts);
 			a.setDaysBeforeVaccinationAvailable(daysBeforeVaccinationAvailable);
-			a.setDaysInfectionLasts(daysInfectionLasts);
 			a.setImmunizationAllowed(immunizationAllowed);
 			
 			//Add this disease to the end of my diseaseQueue
