@@ -74,6 +74,7 @@ private:
 	void determineRemovedState(int row, int col);
 	void askForDiseaseParameters(disease &b);
 	void placeInitialVaccinations();
+	void confirmSimulationChoice();
 	
 	//Input Validation
 	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);

@@ -28,36 +28,41 @@ simulation::simulation(int maxDay)
 
 void simulation::begin()
 {
-	int userInitiateSimulation = 0;
 	initializeGrid();
+	printMainMenu();
+}
+
+void simulation::confirmSimulationChoice()
+{
+	int userInitiateSimulation = 0;
 	
 	//I need to provide an interface for the user to specify which disease should be simulated
-	do
-	{
-		//Show the menu, and allow the user to choose a disease. The chosen disease is returned here.
-		printMainMenu();
-		std::cout << "\n[!] You chose \'" << this->chosenDisease.getName() << "\'" << std::endl;
-		chosenDisease.printInfo();
-		std::cout << '\n';
-		//Ask the user if they would like to continue with this disease choice
-		userInitiateSimulation = getValidInteger("[?] Would you like to begin the simulation? (1=YES, 0=NO): ",0,1);
-	}
-	while(userInitiateSimulation == 0);//keep showing the menu until the user decides to begin a simulation for a chosen disease
+	std::cout << "\n[!] You chose \'" << this->chosenDisease.getName() << "\'" << std::endl;
+	
+	this->chosenDisease.printInfo();
+	
+	std::cout << '\n';
+	
+	//Ask the user if they would like to continue with this disease choice
+	userInitiateSimulation = getValidInteger("[?] Would you like to begin the simulation? (1=YES, 0=NO): ",0,1);
     
-    startSimulation();
+	if(userInitiateSimulation == 1)
+		startSimulation();
 }
 
 void simulation::startSimulation()
 {
     //Draw the CImg image to animate
     CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-    CImgDisplay main_display(world,"Cellular Automaton");
+    CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
 	
+	//Reset the current day counter to 0
 	this->currentDay = 0;
 	
+	//Begin a new HTML file, and draw the first table for day 0
 	writeHtmlHeader();
     writeHtmlTable();
     
@@ -352,9 +357,10 @@ void simulation::determineMenuChoice(int n, int numberOfOptionsPrinted)
 			count++;
 		}
 		
-		//at this point, I have found my disease. I will reutrn the diseaes my queue iterator 'it' is pointing at
-		//return (*it);
+		//confirm menu choice with user
 		this->chosenDisease = (*it);
+		
+		confirmSimulationChoice();
 	}
 }
 
@@ -362,10 +368,14 @@ void simulation::showDiseaseEditMenu()
 {
 	std::cout << "\n[?] Which disease would you like to edit?\n\n";
 	int numberOfOptions = printDiseaseOptions();
-	int diseaseChoice = getValidInteger("\n==> ",1,numberOfOptions);
+	std::cout << std::setw(2) << numberOfOptions << ". *Go Back" << std::endl;
+	int diseaseChoice = getValidInteger("\n==> ",1,numberOfOptions+1);
 	
-	//determineMenuChoice(diseaseChoice,numberOfOptions);
+	//If the user wants to go back to the main menu, return.
+	if(diseaseChoice == numberOfOptions)
+		return;
 	
+	//The user chose a valid disease choice if we are at this point of the function
 	std::list<disease>::iterator it = this->diseaseQueue.begin();
 	int count = 1;
 	while(count != diseaseChoice)
@@ -375,17 +385,23 @@ void simulation::showDiseaseEditMenu()
 	}
 	
 	std::cout << "\n[?] Which option would you like to edit?\n\n";
-	std::cout << "1. Name: " << (*it).getName() << std::endl;
-	std::cout << "2. Infection Probability: " << (*it).getInfectionProbability() << std::endl;
-	std::cout << "3. Days Infection Lasts: " << (*it).getDaysInfectionLasts() << std::endl;
-	std::cout << "4. Death Probability: " << (*it).getDeathProbability() << std::endl;
-	std::cout << "5. Travel Probability: " << (*it).getTravelProbability() << std::endl;
-	std::cout << "6. Vaccination Probability: " << (*it).getVaccinationProbability() << std::endl;
-	std::cout << "7. Day When Vaccination Available: " << (*it).getDaysBeforeVaccinationAvailable() << std::endl;
-	std::cout << "8. Immunization Allowed: " << (*it).getImmunizationAllowed() << std::endl;
+	std::cout << "    +----------------------------------------------+" << std::endl;
+    std::cout << std::setw(2) << 1 << ". " << std::setw(8) << std::left << "| Name: " << std::setw(38) << std::right << (*it).getName() << " |" << std::endl;
+	std::cout << std::setw(2) << 2 << ". " << std::setw(42) << std::left << "| Infection Probability: " << std::setw(3) << std::right << (*it).getInfectionProbability() << "% |" << std::endl;
+    std::cout << std::setw(2) << 3 << ". " << std::setw(42) << std::left << "| Days Infection Lasts: " << std::setw(4) << std::right << (*it).getDaysInfectionLasts() << " |" << std::endl;
+	std::cout << std::setw(2) << 4 << ". " << std::setw(42) << std::left << "| Death Probability: " << std::setw(3) << std::right << (*it).getDeathProbability() << "% |" << std::endl;
+    std::cout << std::setw(2) << 5 << ". " << std::setw(42) << std::left << "| Travel Probability: " << std::setw(3) << std::right << (*it).getTravelProbability() << "% |" << std::endl;
+    std::cout << std::setw(2) << 6 << ". " << std::setw(42) << std::left << "| Vaccination Probability: " << std::setw(3) << std::right << (*it).getVaccinationProbability() << "% |" << std::endl;
+	std::cout << std::setw(2) << 7 << ". " << std::setw(42) << std::left << "| Day when Vaccination Available: " << std::setw(4) << std::right << (*it).getDaysBeforeVaccinationAvailable() << " |" << std::endl;
+    std::cout << std::setw(2) << 8 << ". " << std::setw(42) << std::left << "| Immunization Allowed: " << std::setw(4) << std::right << (*it).getImmunizationAllowed() << " |" << std::endl;
+	std::cout << "    +----------------------------------------------+" << std::endl;
+	std::cout << std::setw(2) << 9 << ". " << std::setw(42) << std::left << " *Delete " << std::endl;
+	std::cout << std::setw(2) << 10 << ". " << std::setw(42) << std::left << " *Go Back " << std::endl;
 	
-	int choice = getValidInteger("\n==>",1,8);
+	int choice = getValidInteger("\n==> ",1,10);
 	std::cout << '\n';
+	
+	//choice == 10 means the user wants to return to the disease edit menu
 	switch(choice)
 	{
 		case 1:
@@ -431,6 +447,22 @@ void simulation::showDiseaseEditMenu()
 			(*it).setImmunizationAllowed(getValidInteger("[?] Enter a new value for immunization allowed: ",0,1));
 			break;
 		}
+		case 9:
+		{
+			//delete
+			std::cout << "[?] Are you sure you want to delete \'" << (*it).getName() << "\'?" << std::endl;
+			int response = getValidInteger("==> ",0,1);
+			if(response == 1)
+			{
+				it = this->diseaseQueue.erase(it);
+				std::cout << "[!] Deletion successful!" << std::endl;
+			}
+			else
+			{	
+				std::cout << "[!] Cancelled deletion." << std::endl;
+			}
+			break;
+		}
 		default://shouldn't happen due to 'getValidInteger' enforcing a 1-8 selection, but this is here just to be safe
 		{
 			std::cout << "[X] ERROR: Did not recognize disease edit choice. Ignoring request...\n";
@@ -442,8 +474,7 @@ void simulation::showDiseaseEditMenu()
 	//I'd like to rewrite the diseaseList.txt
 	updateDiseaseList();
 	
-	//Set the updated disease to be my current, chosen disease
-	this->chosenDisease = (*it);
+	showDiseaseEditMenu();
 }
 
 void simulation::updateDiseaseList()
