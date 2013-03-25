@@ -332,7 +332,8 @@ void simulation::printMainMenu()
 	numberOfOptionsPrinted = printDiseaseOptions();
 	std::cout << std::setw(2) << numberOfOptionsPrinted << ". *Create New Disease" << std::endl;
 	std::cout << std::setw(2) << numberOfOptionsPrinted+1 << ". *Edit Disease List" << std::endl << std::endl;
-	menuChoice = getValidInteger("==> ",1,numberOfOptionsPrinted+1);
+	std::cout << std::setw(2) << numberOfOptionsPrinted+2 << ". *Simulation Options" << std::endl << std::endl;
+	menuChoice = getValidInteger("==> ",1,numberOfOptionsPrinted+2);
 	
 	//Figure out which disease the user chose, and return it
 	//return determineMenuChoice(menuChoice, numberOfOptionsPrinted);
@@ -346,6 +347,8 @@ void simulation::determineMenuChoice(int n, int numberOfOptionsPrinted)
 		createNewDisease();
 	else if(n == numberOfOptionsPrinted+1)
 		showDiseaseEditMenu();
+	else if(n == numberOfOptionsPrinted+2)
+		showSimulationOptionsMenu();
 	else
 	{
 		//Look through the disease queue until the chosen disease is found
@@ -362,6 +365,59 @@ void simulation::determineMenuChoice(int n, int numberOfOptionsPrinted)
 		
 		confirmSimulationChoice();
 	}
+}
+
+void simulation::showSimulationOptionsMenu()
+{
+	std::cout << "[?] Which option would you like to modify?\n\n";
+	
+	//Should HTML output files be produced?
+	if(this->htmlFlag)
+		std::cout << " 1.    HTML WRITER: [ON] OFF" << std::endl;
+	else
+		std::cout << " 1.    HTML WRITER:  ON [OFF]" << std::endl;
+	
+	//Should a CSV data file be produced?
+	if(this->csvFlag)
+		std::cout << " 2.     CSV WRITER: [ON] OFF" << std::endl;
+	else
+		std::cout << " 2.     CSV WRITER:  ON [OFF]" << std::endl;
+	
+	//Should a CImg animation be produced?
+	std::cout << " 3. CImg Animation: [ON] OFF" << std::endl;
+	if(this->cImgAnimationFlag)
+	{
+		std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
+		switch(this->cImgAnimationSpeed)
+		{
+			case 1:
+			{
+				std::cout << " 4.          Speed: [1] 2 3 4 5" << std::endl;
+			}
+			case 2:
+			{
+				std::cout << " 4.          Speed: 1 [2] 3 4 5" << std::endl;
+			}
+			case 3:
+			{
+				std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
+			}
+			case 4:
+			{
+				std::cout << " 4.          Speed: 1 2 3 [4] 5" << std::endl;
+			}
+			case 5:
+			{
+				std::cout << " 4.          Speed: 1 2 3 4 [5]" << std::endl;
+			}
+			default:
+			{
+				std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
+			}
+		}
+	}
+	
+	std::cout << "==> ";
 }
 
 void simulation::showDiseaseEditMenu()

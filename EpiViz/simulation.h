@@ -38,6 +38,12 @@ private:
     int vaccinatedPopulation;
     int immunePopulation;
     int deadPopulation;
+	
+	//Simulation Options Flags
+	bool cImgAnimationFlag;
+	bool htmlFlag;
+	bool csvFlag;
+	int cImgAnimationSpeed;
     
     entity grid[dimension][dimension];
     
