@@ -386,7 +386,7 @@ void simulation::showDiseaseEditMenu()
 	
 	std::cout << "\n[?] Which option would you like to edit?\n\n";
 	std::cout << "    +----------------------------------------------+" << std::endl;
-    std::cout << std::setw(2) << 1 << ". " << std::setw(8) << std::left << "| Name: " << std::setw(38) << std::right << (*it).getName() << " |" << std::endl;
+    std::cout << std::setw(2) << right << 1 << ". " << std::setw(8) << std::left << "| Name: " << std::setw(38) << std::right << (*it).getName() << " |" << std::endl;
 	std::cout << std::setw(2) << 2 << ". " << std::setw(42) << std::left << "| Infection Probability: " << std::setw(3) << std::right << (*it).getInfectionProbability() << "% |" << std::endl;
     std::cout << std::setw(2) << 3 << ". " << std::setw(42) << std::left << "| Days Infection Lasts: " << std::setw(4) << std::right << (*it).getDaysInfectionLasts() << " |" << std::endl;
 	std::cout << std::setw(2) << 4 << ". " << std::setw(42) << std::left << "| Death Probability: " << std::setw(3) << std::right << (*it).getDeathProbability() << "% |" << std::endl;
@@ -450,22 +450,22 @@ void simulation::showDiseaseEditMenu()
 		case 9:
 		{
 			//delete
-			std::cout << "[?] Are you sure you want to delete \'" << (*it).getName() << "\'?" << std::endl;
-			int response = getValidInteger("==> ",0,1);
+			std::cout << "[?] Are you sure you want to delete \'" << (*it).getName() << "\'? (1=YES, 0=NO)" << std::endl;
+			int response = getValidInteger("\n==> ",0,1);
 			if(response == 1)
 			{
 				it = this->diseaseQueue.erase(it);
-				std::cout << "[!] Deletion successful!" << std::endl;
+				std::cout << "\n[!] Deletion successful!" << std::endl;
 			}
 			else
 			{	
-				std::cout << "[!] Cancelled deletion." << std::endl;
+				std::cout << "\n[!] Cancelled deletion." << std::endl;
 			}
 			break;
 		}
 		default://shouldn't happen due to 'getValidInteger' enforcing a 1-8 selection, but this is here just to be safe
 		{
-			std::cout << "[X] ERROR: Did not recognize disease edit choice. Ignoring request...\n";
+			std::cout << "\n[X] ERROR: Did not recognize disease edit choice. Ignoring request...\n";
 			break;
 		}
 	}
@@ -562,7 +562,7 @@ int simulation::printDiseaseOptions()
 	int count = 1;
 	for(std::list<disease>::iterator it=this->diseaseQueue.begin(); it != this->diseaseQueue.end(); ++it)
 	{
-		std::cout << std::setw(2) << count << ". " << (*it).getName() << std::endl;
+		std::cout << std::setw(2) << right << count << ". " << (*it).getName() << std::endl;
 		count++;
 	}
 	return count;
