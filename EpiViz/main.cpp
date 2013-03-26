@@ -11,7 +11,7 @@
 
 int main(int argc, const char * argv[])
 {
-    simulation mySim(100000);
+    simulation mySim(1000);
 	
 	while(1)
         mySim.begin();

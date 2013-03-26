@@ -142,7 +142,7 @@ void simulation::randomlyInfectFirstEntity()
 void simulation::spreadVaccination()
 {
 	//Are we allowed to vaccinate
-	if(this->currentDay >= this->chosenDisease.getDaysBeforeVaccinationAvailable())
+	if(this->currentDay >= this->chosenDisease.getDaysBeforeVaccinationAvailable() && this->chosenDisease.getVaccinationProbability() > 0)
 	{
 		//Are there any vaccinated entities in the grid yet?
 		if(this->vaccinationQueue.size() == 0)
