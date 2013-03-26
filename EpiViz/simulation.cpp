@@ -22,6 +22,12 @@ simulation::simulation(int maxDay)
     this->immunePopulation = 0;
     this->deadPopulation = 0;
 	
+	//Flags
+	this->cImgAnimationFlag = false;
+	this->htmlFlag = true;
+	this->csvFlag = false;
+	this->cImgAnimationSpeed = 3;
+	
 	//Load Disease Information
 	loadDiseaseList();
 }
@@ -52,9 +58,19 @@ void simulation::confirmSimulationChoice()
 
 void simulation::startSimulation()
 {
+	if(!this->cImgAnimationFlag && !this->csvFlag && !this->htmlFlag)
+	{
+		std::cout << "[!] You have no output modes enabled. Please enable at least one output before beginning the simulation.\n";
+		showSimulationOptionsMenu();
+		return;
+	}
+	
     //Draw the CImg image to animate
-    CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-    CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	if(this->cImgAnimationFlag)
+	{
+		//CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+		//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	}
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -63,8 +79,11 @@ void simulation::startSimulation()
 	this->currentDay = 0;
 	
 	//Begin a new HTML file, and draw the first table for day 0
-	writeHtmlHeader();
-    writeHtmlTable();
+	if(this->htmlFlag)
+	{
+		writeHtmlHeader();
+		writeHtmlTable();
+	}
     
 	//Loop through each day of the simulation, trying to spread infection each day until maxDays is reached or no one is infected anymore
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
@@ -75,14 +94,18 @@ void simulation::startSimulation()
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
 		//printGridInfo();
-        writeHtmlTable();
+        if(this->htmlFlag)
+			writeHtmlTable();
         
-        for(int frame=0; frame<animationSpeed; frame++)
-            animateImage(world);
-        
-        world.display(main_display);
+		if(this->cImgAnimationFlag)
+			for(int frame=0; frame<animationSpeed; frame++)
+			{
+				//animateImage(world);
+				//world.display(main_display);
+			}
 	}
-    writeHtmlFooter();
+	if(this->htmlFlag)
+		writeHtmlFooter();
 }
 
 void simulation::initializeGrid()
@@ -101,10 +124,7 @@ void simulation::initializeGrid()
 	}
     
     //Empty the vaccination queue
-    std::cout << "The vaccination queue has " << this->vaccinationQueue.size() << " entities to remove...\n";
     this->vaccinationQueue.clear();
-    
-    std::cout << "The vaccination queue now has " << this->vaccinationQueue.size() << " entities in the queue!\n";
 }
 
 void simulation::randomlyInfectFirstEntity()
@@ -398,43 +418,48 @@ void simulation::showSimulationOptionsMenu()
         std::cout << " 3. CImg Animation: [ON] OFF" << std::endl;
 		switch(this->cImgAnimationSpeed)
 		{
-			case 1:
-			{
-				std::cout << " 4.          Speed: [1] 2 3 4 5" << std::endl;
-			}
-			case 2:
-			{
-				std::cout << " 4.          Speed: 1 [2] 3 4 5" << std::endl;
-			}
-			case 3:
-			{
-				std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
-			}
-			case 4:
-			{
-				std::cout << " 4.          Speed: 1 2 3 [4] 5" << std::endl;
-			}
-			case 5:
-			{
-				std::cout << " 4.          Speed: 1 2 3 4 [5]" << std::endl;
-			}
-			default:
-			{
-				std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
-			}
+			case 1:{std::cout << " 4.          Speed: [1] 2 3 4 5" << std::endl;break;}
+			case 2:{std::cout << " 4.          Speed: 1 [2] 3 4 5" << std::endl;break;}
+			case 3:{std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;break;}
+			case 4:{std::cout << " 4.          Speed: 1 2 3 [4] 5" << std::endl;break;}
+			case 5:{std::cout << " 4.          Speed: 1 2 3 4 [5]" << std::endl;break;}
+			default:{std::cout << " 4???.       Speed: 1 2 [3] 4 5" << std::endl;break;}
 		}
         std::cout << " 5. *Back" << std::endl;
 	}
     else
     {
-        std::cout << " 3. CImg Animation: ON [OFF]" << std::endl;
+        std::cout << " 3. CImg Animation:  ON [OFF]" << std::endl;
         std::cout << " 4. *Back" << std::endl;
     }
     
+	int menuChoice = getValidInteger("==> ",1,5);
 	
-	std::cout << "==> [Work In Progress]";
-    
-    begin();
+	switch(menuChoice)
+	{
+		case 1:{this->htmlFlag = !this->htmlFlag;showSimulationOptionsMenu();break;}
+		case 2:{this->csvFlag = !this->csvFlag;showSimulationOptionsMenu();break;}
+		case 3:{this->cImgAnimationFlag = !this->cImgAnimationFlag;showSimulationOptionsMenu();break;}
+		case 4:
+		{
+			if(this->cImgAnimationFlag)
+			{
+				std::cout << "[?] What speed should the animation operate at? (1-5, 1 being fastest)\n";
+				this->cImgAnimationSpeed = getValidInteger("==> ",1,5);
+				showSimulationOptionsMenu();
+			}
+			else
+				begin();
+			break;
+		}
+		case 5:
+		{
+			if(this->cImgAnimationFlag)
+				begin();
+			break;
+		}
+		default:{std::cout << "[X] ERROR: Didn't recognize menu choice in the Simulation Options menu...\n";break;}
+	}
 }
 
 void simulation::showDiseaseEditMenu()
