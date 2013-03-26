@@ -25,7 +25,7 @@ using namespace std;
 
 const int dimension = 50;
 const float epiVizVersionNumber = 1.0;
-const int animationSpeed = 175;
+const int animationSpeed = 125;
 const std::string diseaseListFileName = "diseaseList.txt";
 
 class simulation
@@ -81,6 +81,7 @@ private:
 	void askForDiseaseParameters(disease &b);
 	void placeInitialVaccinations();
 	void confirmSimulationChoice();
+    void showSimulationOptionsMenu();
 	
 	//Input Validation
 	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);

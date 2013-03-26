@@ -70,7 +70,7 @@ void simulation::startSimulation()
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
 	{
 		spreadInfection();
-		//spreadVaccination();
+		spreadVaccination();
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
@@ -83,6 +83,7 @@ void simulation::startSimulation()
         world.display(main_display);
 	}
     writeHtmlFooter();
+    initializeGrid();
 }
 
 void simulation::initializeGrid()
@@ -99,6 +100,10 @@ void simulation::initializeGrid()
 			this->grid[i][j].setNewlyVaccinated(false);
 		}
 	}
+    
+    //Empty the vaccination queue
+    for(std::list<entity>::iterator it=this->vaccinationQueue.begin(); it != this->vaccinationQueue.end(); ++it)
+        it = this->vaccinationQueue.erase(it);
 }
 
 void simulation::randomlyInfectFirstEntity()
@@ -116,13 +121,12 @@ void simulation::randomlyInfectFirstEntity()
 void simulation::spreadVaccination()
 {
 	//Are we allowed to vaccinate
-	if(this->chosenDisease.getDaysBeforeVaccinationAvailable() >= this->currentDay)
+	if(this->currentDay >= this->chosenDisease.getDaysBeforeVaccinationAvailable())
 	{
 		//Are there any vaccinated entities in the grid yet?
 		if(this->vaccinationQueue.size() == 0)
 		{
 			placeInitialVaccinations();
-            
             //pause();
 		}
 		//Ok, I already have vaccinated entities in my queue. I will allow them to start vaccinating!
@@ -154,26 +158,29 @@ void simulation::spreadVaccination()
 
 void simulation::placeInitialVaccinations()
 {	
-	int placedHospitals = 0;
-    int x, y;
+	int maxAttempts = dimension*dimension;
     int attempts = 0;
-    int upperLimit = dimension*dimension;
-    while(attempts < upperLimit && placedHospitals < 4)
+    int placedHospitals = 0;
+    int x = 0, y = 0;
+    while(attempts < maxAttempts && placedHospitals < 4)
     {
         x = rand()%dimension;
         y = rand()%dimension;
         
         if(this->grid[x][y].getStatus() == susceptible)
         {
-            this->grid[x][y].setStatus(vaccinated);
-            this->grid[x][y].flipNewlyVaccinated();
-            this->infectionQueue.push_back(this->grid[x][y]);
             placedHospitals++;
-            std::cout << this->infectionQueue.size() << std::endl;
+            this->grid[x][y].flipNewlyVaccinated();
+            this->grid[x][y].setStatus(vaccinated);
+            this->vaccinationQueue.push_back(this->grid[x][y]);
         }
         attempts++;
     }
-    std::cout << "[!] Placed " << placedHospitals << "...\n";
+    
+    //Attempt finding a susceptible square nearest the optimal cell
+    //this->grid[x][y].flipNewlyVaccinated();
+    //this->grid[x][y].setStatus(vaccinated);
+    //this->vaccinationQueue.push_back(this->grid[x][y]);
 }
 
 void simulation::spreadInfection()
@@ -248,7 +255,7 @@ void simulation::attemptVaccinationAt(int row, int col)
 	//If the row or column is out of bounds, then I need to wrap it
 	worldWrap(row,col);
 	
-	//We'll only try to infect the entity if the entity is currently in the susceptible state
+	//We'll only try to vaccinate the entity if the entity is currently in the susceptible state
 	if(this->grid[row][col].getStatus() == susceptible)
 	{
 		int diceRoll = rand()%100;
@@ -257,6 +264,7 @@ void simulation::attemptVaccinationAt(int row, int col)
 		if(diceRoll < this->chosenDisease.getVaccinationProbability())
 		{
 			this->grid[row][col].flipNewlyVaccinated();
+            this->grid[row][col].setStatus(vaccinated);
 			this->vaccinationQueue.push_back(this->grid[row][col]);
 		}
 	}
@@ -331,7 +339,7 @@ void simulation::printMainMenu()
 	std::cout << "\n[?] Please choose a disease to simulate below:" << std::endl;
 	numberOfOptionsPrinted = printDiseaseOptions();
 	std::cout << std::setw(2) << numberOfOptionsPrinted << ". *Create New Disease" << std::endl;
-	std::cout << std::setw(2) << numberOfOptionsPrinted+1 << ". *Edit Disease List" << std::endl << std::endl;
+	std::cout << std::setw(2) << numberOfOptionsPrinted+1 << ". *Edit Disease List" << std::endl;
 	std::cout << std::setw(2) << numberOfOptionsPrinted+2 << ". *Simulation Options" << std::endl << std::endl;
 	menuChoice = getValidInteger("==> ",1,numberOfOptionsPrinted+2);
 	
@@ -384,10 +392,9 @@ void simulation::showSimulationOptionsMenu()
 		std::cout << " 2.     CSV WRITER:  ON [OFF]" << std::endl;
 	
 	//Should a CImg animation be produced?
-	std::cout << " 3. CImg Animation: [ON] OFF" << std::endl;
 	if(this->cImgAnimationFlag)
 	{
-		std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
+        std::cout << " 3. CImg Animation: [ON] OFF" << std::endl;
 		switch(this->cImgAnimationSpeed)
 		{
 			case 1:
@@ -415,9 +422,18 @@ void simulation::showSimulationOptionsMenu()
 				std::cout << " 4.          Speed: 1 2 [3] 4 5" << std::endl;
 			}
 		}
+        std::cout << " 5. *Back" << std::endl;
 	}
+    else
+    {
+        std::cout << " 3. CImg Animation: ON [OFF]" << std::endl;
+        std::cout << " 4. *Back" << std::endl;
+    }
+    
 	
-	std::cout << "==> ";
+	std::cout << "==> [Work In Progress]";
+    
+    begin();
 }
 
 void simulation::showDiseaseEditMenu()
