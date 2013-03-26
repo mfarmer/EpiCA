@@ -11,9 +11,9 @@ SuperCold
 20
 13
 14
-15
+100
 12
-16
+0
 1
 Matthew1
 10
@@ -29,5 +29,5 @@ VaccineCity
 0
 50
 5
-1
+4
 0

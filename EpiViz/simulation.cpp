@@ -83,7 +83,6 @@ void simulation::startSimulation()
         world.display(main_display);
 	}
     writeHtmlFooter();
-    initializeGrid();
 }
 
 void simulation::initializeGrid()
@@ -102,8 +101,10 @@ void simulation::initializeGrid()
 	}
     
     //Empty the vaccination queue
-    for(std::list<entity>::iterator it=this->vaccinationQueue.begin(); it != this->vaccinationQueue.end(); ++it)
-        it = this->vaccinationQueue.erase(it);
+    std::cout << "The vaccination queue has " << this->vaccinationQueue.size() << " entities to remove...\n";
+    this->vaccinationQueue.clear();
+    
+    std::cout << "The vaccination queue now has " << this->vaccinationQueue.size() << " entities in the queue!\n";
 }
 
 void simulation::randomlyInfectFirstEntity()
