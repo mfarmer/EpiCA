@@ -66,11 +66,8 @@ void simulation::startSimulation()
 	}
 	
     //Draw the CImg image to animate
-	if(this->cImgAnimationFlag)
-	{
-		//CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-		//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
-	}
+	//CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
