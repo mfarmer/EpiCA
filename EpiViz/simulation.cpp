@@ -66,8 +66,8 @@ void simulation::startSimulation()
 	}
 	
     //Draw the CImg image to animate
-	//CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -95,11 +95,13 @@ void simulation::startSimulation()
 			writeHtmlTable();
         
 		if(this->cImgAnimationFlag)
-			for(int frame=0; frame<animationSpeed; frame++)
+        {
+			for(int frame=0; frame<=(cImgAnimationSpeed*35-35); frame++)
 			{
-				//animateImage(world);
-				//world.display(main_display);
+				animateImage(world);
+				world.display(main_display);
 			}
+        }
 	}
 	if(this->htmlFlag)
 		writeHtmlFooter();

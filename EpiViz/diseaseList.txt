@@ -1,6 +1,6 @@
 
 Fever
-34
+4
 42
 42
 42
@@ -30,20 +30,4 @@ VaccineCity
 50
 5
 4
-0
-SlowGrowth
-5
-5
-1
-5
-10
-7
-0
-MovingInfection
-5
-0
-0
-0
-15
-0
 0
