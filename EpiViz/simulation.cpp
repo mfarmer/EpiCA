@@ -118,7 +118,7 @@ void simulation::createCSVFile()
 {
 	std::ofstream outfile;
 	outfile.open((this->chosenDisease.getName()+"_data.csv").c_str());
-	outfile << "Day,Susceptible,Infected,Removed,(Immune),(Vaccinated),(Dead)" << std::endl;
+	outfile << "Day,Susceptible,Infected,Removed,(Immune),(Vaccinated),(Dead),TOTAL_POPULATION" << std::endl;
 	outfile.close();
 }
 
@@ -129,9 +129,8 @@ void simulation::writeCSVUpdate()
 	
 	outfile << this->currentDay << "," << this->susceptiblePopulation <<
 	"," << this->infectedPopulation << ","
-	<< this->immunePopulation+this->vaccinatedPopulation+this->deadPopulation << "," << this->immunePopulation << "," <<
-	this->vaccinatedPopulation << "," <<
-	this->deadPopulation << std::endl;
+	<< this->immunePopulation+this->vaccinatedPopulation+this->deadPopulation << "," << this->immunePopulation << "," << this->vaccinatedPopulation << "," << this->deadPopulation << "," << 
+	this->susceptiblePopulation + this->infectedPopulation + this->vaccinatedPopulation + this->deadPopulation + this->immunePopulation << std::endl;
 	
 	outfile.close();
 }
