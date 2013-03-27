@@ -30,6 +30,9 @@ simulation::simulation(int maxDay)
 	
 	//Load Disease Information
 	loadDiseaseList();
+	
+	//Load Simulation Options
+	loadConfigFile();
 }
 
 void simulation::begin()
@@ -490,7 +493,7 @@ void simulation::showSimulationOptionsMenu()
         std::cout << " 4. *Back" << std::endl;
     }
     
-	int menuChoice = getValidInteger("==> ",1,5);
+	int menuChoice = getValidInteger("\n==> ",1,5);
 	
 	switch(menuChoice)
 	{
@@ -506,16 +509,22 @@ void simulation::showSimulationOptionsMenu()
 				showSimulationOptionsMenu();
 			}
 			else
+			{
+				saveConfigFile();
 				begin();
+			}
 			break;
 		}
 		case 5:
 		{
 			if(this->cImgAnimationFlag)
+			{
+				saveConfigFile();
 				begin();
+			}
 			break;
 		}
-		default:{std::cout << "[X] ERROR: Didn't recognize menu choice in the Simulation Options menu...\n";break;}
+		default:{std::cout << "[X] ERROR: Didn't recognize menu choice in the Simulation Options menu...\n";break;}//just in case getValidInteger() failed in some way
 	}
 }
 
@@ -721,6 +730,56 @@ int simulation::printDiseaseOptions()
 		count++;
 	}
 	return count;
+}
+
+void simulation::loadConfigFile()
+{
+	std::ifstream infile;
+	infile.open(configFileName.c_str(),std::ifstream::in);
+	
+	if(infile.is_open())
+	{
+		std::cout << "[!] Successfully opened " << configFileName << "!" << std::endl;
+		infile >> this->htmlFlag >> this->csvFlag >> this->cImgAnimationFlag >> this->cImgAnimationSpeed;
+		infile.close();
+	}
+	else
+	{
+		std::cout << "[!] Config file did not exist, creating new one..." << std::endl;
+		createConfigFile();
+	}
+}
+
+void simulation::createConfigFile()
+{
+	std::ofstream outfile;
+	outfile.open(configFileName.c_str());
+	
+	if(outfile.is_open())
+	{
+		this->htmlFlag = 1;
+		this->csvFlag = 1;
+		this->cImgAnimationFlag = 0;
+		this->cImgAnimationSpeed = 3;
+		outfile << this->htmlFlag << " " << this->csvFlag << " " << this->cImgAnimationFlag << " " << this->cImgAnimationSpeed;
+		std::cout << "[!] Successfully created config file!" << std::endl;
+		outfile.close();
+	}
+	else
+		std::cout << "[X] ERROR: Could not create a config file \'" << configFileName << "\'" << std::endl;
+}
+
+void simulation::saveConfigFile()
+{
+	std::ofstream outfile;
+	outfile.open(configFileName.c_str());
+	
+	if(outfile.is_open())
+	{
+		outfile << this->htmlFlag << " " << this->csvFlag << " " << this->cImgAnimationFlag << " " << this->cImgAnimationSpeed;
+		std::cout << "\n[!] Saved config file!" << std::endl;
+		outfile.close();
+	}
 }
 
 void simulation::loadDiseaseList()

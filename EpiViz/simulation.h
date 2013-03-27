@@ -23,10 +23,11 @@
 using namespace cimg_library;
 using namespace std;
 
-const int dimension = 50;
+const int dimension = 100;
 const float epiVizVersionNumber = 1.0;
-const int animationSpeed = 125;
+//const int animationSpeed = 125;
 const std::string diseaseListFileName = "diseaseList.txt";
+const std::string configFileName = "config.txt";
 
 class simulation
 {
@@ -47,51 +48,65 @@ private:
 	bool csvFlag;
 	int cImgAnimationSpeed;
     
+	//2D Array of Entities
     entity grid[dimension][dimension];
     
+	//Queues
 	std::list<entity> infectionQueue;
 	std::list<disease> diseaseQueue;
 	std::list<entity> vaccinationQueue;
 	std::list<zone> zoneQueue;
 	
+	//Disease
 	disease chosenDisease;
 	
 	//Private Methods
     void startSimulation();
 	void initializeSim();
 	
-	//Output
+	//File Management
 	void writeHtmlHeader();
 	void writeHtmlTable();
 	void writeHtmlFooter();
-    void animateImage(CImg<unsigned char> &x);
+	void writeCSVUpdate();
+	void createCSVFile();
+	void updateDiseaseList();
+	void loadDiseaseList();
+	void loadConfigFile();
+	void saveConfigFile();
+	void createNewDisease();
+	void createConfigFile();
+	void animateImage(CImg<unsigned char> &x);
+	
+	//Menus
+	void printMainMenu();
+	int printDiseaseOptions();
+	void determineMenuChoice(int n, int numberOfOptionsPrinted);
+	void showDiseaseEditMenu();
+	void showSimulationOptionsMenu();
+	void askForDiseaseParameters(disease &b);
+	void confirmSimulationChoice();
+	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);
+	
+	//Simulation
+	void worldWrap(int &row, int &col);
+	
+	//Infection
 	void randomlyInfectFirstEntity();
     void spreadInfection();
-	void spreadVaccination();
-	void dispatchVaccinationPods();
-	int printDiseaseOptions();
-	void worldWrap(int &row, int &col);
-	void printMainMenu();
-	void determineMenuChoice(int n, int numberOfOptionsPrinted);
-	void createNewDisease();
-	void loadDiseaseList();
-	void showDiseaseEditMenu();
-	void updateDiseaseList();
 	void attemptInfectionAt(int row, int col);
-	void attemptVaccinationAt(int row, int col);
-	void determineRemovedState(int row, int col);
-	void askForDiseaseParameters(disease &b);
-	void placeInitialVaccinations();
-	void confirmSimulationChoice();
-    void showSimulationOptionsMenu();
-	void createCSVFile();
-	void writeCSVUpdate();
 	void infectEntity(int row, int col);
 	void vaccinateEntity(int row, int col);
-	void removeEntity(int row, int col, int newStatus);
 	
-	//Input Validation
-	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);
+	//Vaccination
+	void placeInitialVaccinations();
+	void dispatchVaccinationPods();
+	void spreadVaccination();
+	void attemptVaccinationAt(int row, int col);
+	
+	//Removed States
+	void determineRemovedState(int row, int col);
+	void removeEntity(int row, int col, int newStatus);
 	
 public:
     simulation(int maxDay);
