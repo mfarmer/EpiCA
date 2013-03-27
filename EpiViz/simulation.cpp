@@ -11,7 +11,7 @@
 simulation::simulation(int maxDay)
 {
     //Initialize the row and column value for each entity in the grid so that they may know their location
-    initializeGrid();
+    initializeSim();
     
 	//Initialize Simulation Information
     this->currentDay = 0;
@@ -34,7 +34,7 @@ simulation::simulation(int maxDay)
 
 void simulation::begin()
 {
-	initializeGrid();
+	initializeSim();
 	printMainMenu();
 }
 
@@ -66,8 +66,8 @@ void simulation::startSimulation()
 	}
 	
     //Draw the CImg image to animate
-	CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	//CImg<unsigned char> world(dimension*10,dimension*10,1,3);
+	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -81,6 +81,11 @@ void simulation::startSimulation()
 		writeHtmlHeader();
 		writeHtmlTable();
 	}
+	if(this->csvFlag)
+	{
+		createCSVFile();
+		writeCSVUpdate();
+	}
     
 	//Loop through each day of the simulation, trying to spread infection each day until maxDays is reached or no one is infected anymore
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
@@ -90,16 +95,18 @@ void simulation::startSimulation()
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
-		//printGridInfo();
         if(this->htmlFlag)
 			writeHtmlTable();
-        
+			
+        if(this->csvFlag)
+			writeCSVUpdate();
+			
 		if(this->cImgAnimationFlag)
         {
 			for(int frame=0; frame<=(cImgAnimationSpeed*35-35); frame++)
 			{
-				animateImage(world);
-				world.display(main_display);
+				//animateImage(world);
+				//world.display(main_display);
 			}
         }
 	}
@@ -107,7 +114,29 @@ void simulation::startSimulation()
 		writeHtmlFooter();
 }
 
-void simulation::initializeGrid()
+void simulation::createCSVFile()
+{
+	std::ofstream outfile;
+	outfile.open((this->chosenDisease.getName()+"_data.csv").c_str());
+	outfile << "Day,Susceptible,Infected,Removed,(Immune),(Vaccinated),(Dead)" << std::endl;
+	outfile.close();
+}
+
+void simulation::writeCSVUpdate()
+{
+	std::ofstream outfile;
+	outfile.open((this->chosenDisease.getName()+"_data.csv").c_str(),std::ios::app);
+	
+	outfile << this->currentDay << "," << this->susceptiblePopulation <<
+	"," << this->infectedPopulation << ","
+	<< this->immunePopulation+this->vaccinatedPopulation+this->deadPopulation << "," << this->immunePopulation << "," <<
+	this->vaccinatedPopulation << "," <<
+	this->deadPopulation << std::endl;
+	
+	outfile.close();
+}
+
+void simulation::initializeSim()
 {
     for(int i=0; i<dimension; i++)
 	{
@@ -124,6 +153,13 @@ void simulation::initializeGrid()
     
     //Empty the vaccination queue
     this->vaccinationQueue.clear();
+	
+	//Reset Populations
+	this->susceptiblePopulation = dimension*dimension;
+	this->infectedPopulation = 0;
+	this->vaccinatedPopulation = 0;
+	this->immunePopulation = 0;
+	this->deadPopulation = 0;
 }
 
 void simulation::randomlyInfectFirstEntity()
@@ -132,10 +168,47 @@ void simulation::randomlyInfectFirstEntity()
     int col = rand()%dimension;
     
     //Choose entity to infect
-    this->grid[row][col].setStatus(infected);
-    
-    //Place entity into FIFO queue
-    this->infectionQueue.push_back(this->grid[row][col]);
+    infectEntity(row,col);
+}
+
+void simulation::infectEntity(int row, int col)
+{
+	this->grid[row][col].setStatus(infected);
+	this->infectionQueue.push_back(this->grid[row][col]);
+	this->infectedPopulation++;
+	this->susceptiblePopulation--;
+}
+
+void simulation::vaccinateEntity(int row, int col)
+{
+    this->grid[row][col].setStatus(vaccinated);
+	this->vaccinationQueue.push_back(this->grid[row][col]);
+	this->vaccinatedPopulation++;
+	this->susceptiblePopulation--;
+}
+
+void simulation::removeEntity(int row, int col, int newStatus)
+{
+	this->grid[row][col].setStatus(newStatus);
+	switch(newStatus)
+	{
+		case susceptible:
+		{
+			this->susceptiblePopulation++;
+			break;
+		}
+		case dead:
+		{
+			this->deadPopulation++;
+			break;
+		}
+		case immune:
+		{
+			this->immunePopulation++;
+			break;
+		}
+	}
+	this->infectedPopulation--;
 }
 
 void simulation::spreadVaccination()
@@ -147,7 +220,6 @@ void simulation::spreadVaccination()
 		if(this->vaccinationQueue.size() == 0)
 		{
 			placeInitialVaccinations();
-            //pause();
 		}
 		//Ok, I already have vaccinated entities in my queue. I will allow them to start vaccinating!
 		else
@@ -178,6 +250,7 @@ void simulation::spreadVaccination()
 
 void simulation::placeInitialVaccinations()
 {	
+	//Randomly chooses four entities to vaccinate. This method should be improved to more intelligently select entities to vaccinate
 	int maxAttempts = dimension*dimension;
     int attempts = 0;
     int placedHospitals = 0;
@@ -191,16 +264,10 @@ void simulation::placeInitialVaccinations()
         {
             placedHospitals++;
             this->grid[x][y].flipNewlyVaccinated();
-            this->grid[x][y].setStatus(vaccinated);
-            this->vaccinationQueue.push_back(this->grid[x][y]);
+            vaccinateEntity(x,y);
         }
         attempts++;
     }
-    
-    //Attempt finding a susceptible square nearest the optimal cell
-    //this->grid[x][y].flipNewlyVaccinated();
-    //this->grid[x][y].setStatus(vaccinated);
-    //this->vaccinationQueue.push_back(this->grid[x][y]);
 }
 
 void simulation::spreadInfection()
@@ -256,18 +323,11 @@ void simulation::determineRemovedState(int row, int col)
     worldWrap(row,col);
     
     if(diceRoll < this->chosenDisease.getDeathProbability())
-    {
-        //The entity is now deceased, as opposed to immune
-        this->grid[row][col].setStatus(dead);
-    }
+        removeEntity(row,col,dead);
     else if(this->chosenDisease.getImmunizationAllowed())
-    {
-        this->grid[row][col].setStatus(immune);
-    }
+        removeEntity(row,col,immune);
 	else
-	{
-		this->grid[row][col].setStatus(susceptible);
-	}
+		removeEntity(row,col,susceptible);
 }
 
 void simulation::attemptVaccinationAt(int row, int col)
@@ -284,8 +344,7 @@ void simulation::attemptVaccinationAt(int row, int col)
 		if(diceRoll < this->chosenDisease.getVaccinationProbability())
 		{
 			this->grid[row][col].flipNewlyVaccinated();
-            this->grid[row][col].setStatus(vaccinated);
-			this->vaccinationQueue.push_back(this->grid[row][col]);
+            vaccinateEntity(row,col);
 		}
 	}
 }
@@ -304,8 +363,7 @@ void simulation::attemptInfectionAt(int row, int col)
 		if(diceRoll < this->chosenDisease.getInfectionProbability())
 		{
 			this->grid[row][col].flipNewlyInfected();
-			this->grid[row][col].setStatus(infected);
-			this->infectionQueue.push_back(this->grid[row][col]);
+			infectEntity(row,col);
 		}
 	}
 }

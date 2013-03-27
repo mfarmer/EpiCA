@@ -33,6 +33,8 @@ class simulation
 private:
     int currentDay;
     int maxDay;
+	
+	//Population Totals
     int susceptiblePopulation;
     int infectedPopulation;
     int vaccinatedPopulation;
@@ -56,7 +58,7 @@ private:
 	
 	//Private Methods
     void startSimulation();
-	void initializeGrid();
+	void initializeSim();
 	
 	//Output
 	void writeHtmlHeader();
@@ -82,6 +84,11 @@ private:
 	void placeInitialVaccinations();
 	void confirmSimulationChoice();
     void showSimulationOptionsMenu();
+	void createCSVFile();
+	void writeCSVUpdate();
+	void infectEntity(int row, int col);
+	void vaccinateEntity(int row, int col);
+	void removeEntity(int row, int col, int newStatus);
 	
 	//Input Validation
 	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);
