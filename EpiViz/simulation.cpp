@@ -151,8 +151,9 @@ void simulation::initializeSim()
 		}
 	}
     
-    //Empty the vaccination queue
+    //Empty the vaccination and infection queue
     this->vaccinationQueue.clear();
+	this->infectionQueue.clear();
 	
 	//Reset Populations
 	this->susceptiblePopulation = dimension*dimension;
