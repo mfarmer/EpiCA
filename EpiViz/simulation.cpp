@@ -68,9 +68,12 @@ void simulation::startSimulation()
 		return;
 	}
 	
+	std::cout << std::endl;
+	std::cout << "[!] Simulating   ";
+	
     //Draw the CImg image to animate
-	CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
-	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	//CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
+	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -89,32 +92,77 @@ void simulation::startSimulation()
 		createCSVFile();
 		writeCSVUpdate();
 	}
+	if(this->cImgAnimationFlag)
+	{
+		for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
+		{
+			//animateImage(world);
+			//world.display(main_display);
+		}
+	}
     
+	int periodCounter = 0;
+	std::string periodString = "";
 	//Loop through each day of the simulation, trying to spread infection each day until maxDays is reached or no one is infected anymore
 	while(this->currentDay < this->maxDay && this->infectionQueue.size() > 0)
 	{
+		//Update the progress bar
+		if(this->currentDay % 10 == 0)
+		{
+			backupNcharacters(17);
+			if(periodCounter != 3)
+				periodCounter++;
+			else
+				periodCounter = 0;
+			if(periodCounter == 0)
+				periodString = "   ";
+			else if(periodCounter == 1)
+				periodString = ".  ";
+			else if(periodCounter == 2)
+				periodString = ".. ";
+			else if(periodCounter == 3)
+				periodString = "...";
+			
+			std::cout << "[!] Simulating"+periodString << flush;
+		}
+		
 		spreadInfection();
 		spreadVaccination();
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
         if(this->htmlFlag)
+		{
 			writeHtmlTable();
-			
-        if(this->csvFlag)
+		}
+		if(this->csvFlag)
+		{
 			writeCSVUpdate();
-			
+		}
 		if(this->cImgAnimationFlag)
-        {
+		{
 			for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 			{
-				animateImage(world);
-				world.display(main_display);
+				//animateImage(world);
+				//world.display(main_display);
 			}
-        }
+		}
 	}
+	backupNcharacters(17);
+	std::cout << "[!] Simulation complete!" << std::endl;
+	
 	if(this->htmlFlag)
 		writeHtmlFooter();
+}
+
+void simulation::backupNcharacters(int n)
+{
+	std::string deleteString;
+	for(int i=0; i<n; i++)
+	{
+		deleteString+="\b";
+	}
+	std::cout << deleteString << flush;
 }
 
 void simulation::createCSVFile()
@@ -506,6 +554,7 @@ void simulation::showSimulationOptionsMenu()
             else
             {
                 std::cout << "\n[!] ERROR: Due to the large grid dimensions, your HTML would be too large. Reduce the size of your grid to at least 100x100 to enable HTML output." << std::endl << std::endl;
+				showSimulationOptionsMenu();
             }
             break;
         }

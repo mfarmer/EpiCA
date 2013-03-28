@@ -90,8 +90,9 @@ private:
 	void confirmSimulationChoice();
 	int getValidInteger(std::string prompt, int inclusiveLowRange, int inclusiveHighRange);
 	
-	//Simulation
+	//Utility
 	void worldWrap(int &row, int &col);
+	void backupNcharacters(int n);
 	
 	//Infection
 	void randomlyInfectFirstEntity();
