@@ -23,8 +23,8 @@
 using namespace cimg_library;
 using namespace std;
 
-const int dimension = 300;
-const int cImgSquareSizeInPixels = 2;
+const int dimension = 600;
+const int cImgSquareSizeInPixels = 1;
 const float epiVizVersionNumber = 1.0;
 //const int animationSpeed = 125;
 const std::string diseaseListFileName = "diseaseList.txt";

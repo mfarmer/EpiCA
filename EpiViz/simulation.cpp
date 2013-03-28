@@ -72,8 +72,8 @@ void simulation::startSimulation()
 	std::cout << "[!] Simulating   ";
 	
     //Draw the CImg image to animate
-	//CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
-	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
+	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -96,8 +96,8 @@ void simulation::startSimulation()
 	{
 		for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 		{
-			//animateImage(world);
-			//world.display(main_display);
+			animateImage(world);
+			world.display(main_display);
 		}
 	}
     
@@ -143,8 +143,8 @@ void simulation::startSimulation()
 		{
 			for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 			{
-				//animateImage(world);
-				//world.display(main_display);
+				animateImage(world);
+				world.display(main_display);
 			}
 		}
 	}
