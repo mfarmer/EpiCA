@@ -12,7 +12,7 @@
 int main(int argc, const char * argv[])
 {
     simulation mySim(1000);
-	mySim.printSimulationInfo();
+
 	while(1)
         mySim.begin();
 

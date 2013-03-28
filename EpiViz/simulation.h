@@ -23,7 +23,8 @@
 using namespace cimg_library;
 using namespace std;
 
-const int dimension = 100;
+const int dimension = 300;
+const int cImgSquareSizeInPixels = 2;
 const float epiVizVersionNumber = 1.0;
 //const int animationSpeed = 125;
 const std::string diseaseListFileName = "diseaseList.txt";
@@ -50,6 +51,7 @@ private:
     
 	//2D Array of Entities
     entity grid[dimension][dimension];
+    //entity **grid;
     
 	//Queues
 	std::list<entity> infectionQueue;

@@ -27,7 +27,7 @@ simulation::simulation(int maxDay)
 	this->htmlFlag = true;
 	this->csvFlag = false;
 	this->cImgAnimationSpeed = 3;
-	
+    
 	//Load Disease Information
 	loadDiseaseList();
 	
@@ -69,8 +69,8 @@ void simulation::startSimulation()
 	}
 	
     //Draw the CImg image to animate
-	//CImg<unsigned char> world(dimension*10,dimension*10,1,3);
-	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
+	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -106,10 +106,10 @@ void simulation::startSimulation()
 			
 		if(this->cImgAnimationFlag)
         {
-			for(int frame=0; frame<=(cImgAnimationSpeed*35-35); frame++)
+			for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 			{
-				//animateImage(world);
-				//world.display(main_display);
+				animateImage(world);
+				world.display(main_display);
 			}
         }
 	}
@@ -140,6 +140,7 @@ void simulation::writeCSVUpdate()
 
 void simulation::initializeSim()
 {
+#pragma omp parallel for
     for(int i=0; i<dimension; i++)
 	{
         for(int j=0; j<dimension; j++)
@@ -236,15 +237,14 @@ void simulation::spreadVaccination()
 				}
 				else
 				{
-					//start attempting to vaccinate
-					attemptVaccinationAt((*it).getRow()-1,(*it).getCol());//top
-					attemptVaccinationAt((*it).getRow()-1,(*it).getCol()+1);//top right
-					attemptVaccinationAt((*it).getRow(),(*it).getCol()+1);//right
-					attemptVaccinationAt((*it).getRow()+1,(*it).getCol()+1);//bottom right
-					attemptVaccinationAt((*it).getRow()+1,(*it).getCol());//bottom
-					attemptVaccinationAt((*it).getRow()+1,(*it).getCol()-1);//bottom left
-					attemptVaccinationAt((*it).getRow(),(*it).getCol()-1);//left
-					attemptVaccinationAt((*it).getRow()-1,(*it).getCol()-1);//top left
+                    attemptVaccinationAt((*it).getRow()-1,(*it).getCol());//top
+                    attemptVaccinationAt((*it).getRow()-1,(*it).getCol()+1);//top right
+                    attemptVaccinationAt((*it).getRow(),(*it).getCol()+1);//right
+                    attemptVaccinationAt((*it).getRow()+1,(*it).getCol()+1);//bottom right
+                    attemptVaccinationAt((*it).getRow()+1,(*it).getCol());//bottom
+                    attemptVaccinationAt((*it).getRow()+1,(*it).getCol()-1);//bottom left
+                    attemptVaccinationAt((*it).getRow(),(*it).getCol()-1);//left
+                    attemptVaccinationAt((*it).getRow()-1,(*it).getCol()-1);//top left
 				}
 			}
 		}
@@ -299,14 +299,14 @@ void simulation::spreadInfection()
 		else
         {
             //start attempting to infect
-			attemptInfectionAt((*it).getRow()-1,(*it).getCol());//top
-			attemptInfectionAt((*it).getRow()-1,(*it).getCol()+1);//top right
-			attemptInfectionAt((*it).getRow(),(*it).getCol()+1);//right
-			attemptInfectionAt((*it).getRow()+1,(*it).getCol()+1);//bottom right
-			attemptInfectionAt((*it).getRow()+1,(*it).getCol());//bottom
-			attemptInfectionAt((*it).getRow()+1,(*it).getCol()-1);//bottom left
-			attemptInfectionAt((*it).getRow(),(*it).getCol()-1);//left
-			attemptInfectionAt((*it).getRow()-1,(*it).getCol()-1);//top left
+            attemptInfectionAt((*it).getRow()-1,(*it).getCol());//top
+            attemptInfectionAt((*it).getRow()-1,(*it).getCol()+1);//top right
+            attemptInfectionAt((*it).getRow(),(*it).getCol()+1);//right
+            attemptInfectionAt((*it).getRow()+1,(*it).getCol()+1);//bottom right
+            attemptInfectionAt((*it).getRow()+1,(*it).getCol());//bottom
+            attemptInfectionAt((*it).getRow()+1,(*it).getCol()-1);//bottom left
+            attemptInfectionAt((*it).getRow(),(*it).getCol()-1);//left
+            attemptInfectionAt((*it).getRow()-1,(*it).getCol()-1);//top left
 			
 			//TRAVEL???
 			int diceRoll = rand()%100;
@@ -497,7 +497,18 @@ void simulation::showSimulationOptionsMenu()
 	
 	switch(menuChoice)
 	{
-		case 1:{this->htmlFlag = !this->htmlFlag;showSimulationOptionsMenu();break;}
+		case 1:
+        {
+            if(this->htmlFlag || dimension * dimension < 10000)
+            {
+                this->htmlFlag = !this->htmlFlag;showSimulationOptionsMenu();
+            }
+            else
+            {
+                std::cout << "\n[!] ERROR: Due to the large grid dimensions, your HTML would be too large. Reduce the size of your grid to at least 100x100 to enable HTML output." << std::endl << std::endl;
+            }
+            break;
+        }
 		case 2:{this->csvFlag = !this->csvFlag;showSimulationOptionsMenu();break;}
 		case 3:{this->cImgAnimationFlag = !this->cImgAnimationFlag;showSimulationOptionsMenu();break;}
 		case 4:
@@ -888,6 +899,9 @@ void simulation::writeHtmlFooter()
 
 void simulation::animateImage(CImg<unsigned char> &x)
 {
+    int pixelSize = cImgSquareSizeInPixels;
+    
+#pragma omp parallel for
     for(int i=0; i<dimension; i++)
     {
         for(int j=0; j<dimension; j++)
@@ -895,27 +909,27 @@ void simulation::animateImage(CImg<unsigned char> &x)
             if(this->grid[i][j].getStatus() == susceptible)
             {
                 unsigned char color[] = {255,255,0};//yellow
-                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+                x.draw_rectangle(i*pixelSize,j*pixelSize,(i*pixelSize)+pixelSize,(j*pixelSize)+pixelSize,color,1);
             }
             else if(this->grid[i][j].getStatus() == vaccinated)
             {
                 unsigned char color[] = {255,0,0};//red
-                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+                x.draw_rectangle(i*pixelSize,j*pixelSize,(i*pixelSize)+pixelSize,(j*pixelSize)+pixelSize,color,1);
             }
             else if(this->grid[i][j].getStatus() == infected)
             {
                 unsigned char color[] = {0,255,0};//green
-                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+                x.draw_rectangle(i*pixelSize,j*pixelSize,(i*pixelSize)+pixelSize,(j*pixelSize)+pixelSize,color,1);
             }
             else if(this->grid[i][j].getStatus() == immune)
             {
                 unsigned char color[] = {0,0,255};//blue
-                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+                x.draw_rectangle(i*pixelSize,j*pixelSize,(i*pixelSize)+pixelSize,(j*pixelSize)+pixelSize,color,1);
             }
             else if(this->grid[i][j].getStatus() == dead)
             {
                 unsigned char color[] = {0,0,0};//black
-                x.draw_rectangle(i*10,j*10,(i*10)+10,(j*10)+10,color,1);
+                x.draw_rectangle(i*pixelSize,j*pixelSize,(i*pixelSize)+pixelSize,(j*pixelSize)+pixelSize,color,1);
             }
         }
     }
