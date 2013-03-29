@@ -72,8 +72,8 @@ void simulation::startSimulation()
 	std::cout << "[!] Simulating   ";
 	
     //Draw the CImg image to animate
-	CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
-	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+	//CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
+	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -96,8 +96,8 @@ void simulation::startSimulation()
 	{
 		for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 		{
-			animateImage(world);
-			world.display(main_display);
+			//animateImage(world);
+			//world.display(main_display);
 		}
 	}
     
@@ -143,8 +143,8 @@ void simulation::startSimulation()
 		{
 			for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 			{
-				animateImage(world);
-				world.display(main_display);
+				//animateImage(world);
+				//world.display(main_display);
 			}
 		}
 	}
@@ -285,14 +285,20 @@ void simulation::spreadVaccination()
 				}
 				else
 				{
-                    attemptVaccinationAt((*it).getRow()-1,(*it).getCol());//top
-                    attemptVaccinationAt((*it).getRow()-1,(*it).getCol()+1);//top right
-                    attemptVaccinationAt((*it).getRow(),(*it).getCol()+1);//right
-                    attemptVaccinationAt((*it).getRow()+1,(*it).getCol()+1);//bottom right
-                    attemptVaccinationAt((*it).getRow()+1,(*it).getCol());//bottom
-                    attemptVaccinationAt((*it).getRow()+1,(*it).getCol()-1);//bottom left
-                    attemptVaccinationAt((*it).getRow(),(*it).getCol()-1);//left
-                    attemptVaccinationAt((*it).getRow()-1,(*it).getCol()-1);//top left
+					int vaccinatedEntities = 0;
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow()-1,(*it).getCol());//top
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow()-1,(*it).getCol()+1);//top right
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow(),(*it).getCol()+1);//right
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow()+1,(*it).getCol()+1);//bottom right
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow()+1,(*it).getCol());//bottom
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow()+1,(*it).getCol()-1);//bottom left
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow(),(*it).getCol()-1);//left
+                    vaccinatedEntities += attemptVaccinationAt((*it).getRow()-1,(*it).getCol()-1);//top left
+					if(vaccinatedEntities == 8)
+					{
+						//Since all of my neighbors are vaccinated, I don't need to actively try to vaccinate anymore.
+						it = this->vaccinationQueue.erase(it);
+					}
 				}
 			}
 		}
@@ -381,12 +387,16 @@ void simulation::determineRemovedState(int row, int col)
 		removeEntity(row,col,susceptible);
 }
 
-void simulation::attemptVaccinationAt(int row, int col)
+int simulation::attemptVaccinationAt(int row, int col)
 {
 	//If the row or column is out of bounds, then I need to wrap it
 	worldWrap(row,col);
 	
 	//We'll only try to vaccinate the entity if the entity is currently in the susceptible state
+	if(this->grid[row][col].getStatus() != susceptible && this->grid[row][col].getStatus() != infected)
+	{
+		return 1;
+	}
 	if(this->grid[row][col].getStatus() == susceptible)
 	{
 		int diceRoll = rand()%100;
@@ -398,6 +408,7 @@ void simulation::attemptVaccinationAt(int row, int col)
             vaccinateEntity(row,col);
 		}
 	}
+	return 0;
 }
 
 void simulation::attemptInfectionAt(int row, int col)
