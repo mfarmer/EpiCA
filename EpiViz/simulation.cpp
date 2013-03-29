@@ -131,7 +131,7 @@ void simulation::startSimulation()
 		this->currentDay++;
 		
 		//Draw your daily HTML table here, record another line in your CSV, and draw the next frame in your CImg window
-        if(this->htmlFlag)
+        	if(this->htmlFlag)
 		{
 			writeHtmlTable();
 		}
