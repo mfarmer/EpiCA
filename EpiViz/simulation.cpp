@@ -71,9 +71,9 @@ void simulation::startSimulation()
 	std::cout << std::endl;
 	std::cout << "[!] Simulating   ";
 	
-    	//Draw the CImg image to animate
-	//CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
-	//CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
+    //Draw the CImg image to animate
+	CImg<unsigned char> world(dimension*cImgSquareSizeInPixels,dimension*cImgSquareSizeInPixels,1,3);
+	CImgDisplay main_display(world,(this->chosenDisease.getName()+" Simulation").c_str());
     
 	//Choose an entity in the grid to become infected
 	randomlyInfectFirstEntity();
@@ -96,8 +96,8 @@ void simulation::startSimulation()
 	{
 		for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 		{
-			//animateImage(world);
-			//world.display(main_display);
+			animateImage(world);
+			world.display(main_display);
 		}
 	}
     
@@ -143,8 +143,8 @@ void simulation::startSimulation()
 		{
 			for(int frame=0; frame<=(cImgAnimationSpeed*10-10); frame++)
 			{
-				//animateImage(world);
-				//world.display(main_display);
+				animateImage(world);
+				world.display(main_display);
 			}
 		}
 	}
@@ -903,13 +903,13 @@ void simulation::writeHtmlHeader()
         	outfile.close();
 	}
 	else
-        	td::cout << "[X] ERROR: Could not create file \'" << this->chosenDisease.getName() << "_simulation.html\'\n";
+        	std::cout << "[X] ERROR: Could not create file \'" << this->chosenDisease.getName() << "_simulation.html\'\n";
 }
 
 void simulation::writeHtmlTable()
 {
-    	td::ofstream outfile;
-    	utfile.open((this->chosenDisease.getName()+"_simulation.html").c_str(),std::ios::app);
+    	std::ofstream outfile;
+    	outfile.open((this->chosenDisease.getName()+"_simulation.html").c_str(),std::ios::app);
     
     	if(outfile.is_open())
     	{
