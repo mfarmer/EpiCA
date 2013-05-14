@@ -1,3 +1,4 @@
+![Screenshot](https://raw.github.com/MFarmer/EpiViz/master/Screenshot/sample1.png)
 <h1>EpiViz</h1>
 ======
 
