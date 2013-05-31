@@ -4,7 +4,7 @@
 
 <h3><i>What is EpiViz?</i></h3>
 
-<b>EpiViz</b> is C++ program which uses a cellular automaton to simulate the spread of disease through a susceptible population. The [CImg library](http://cimg.sourceforge.net/) was used to display the state of the cellular automaton at various phases of the simulation. Results from the simulation are collected and displayed in each of the following ways:
+<b>EpiViz</b> is a C++ program which uses a cellular automaton to simulate the spread of disease through a susceptible population. The [CImg library](http://cimg.sourceforge.net/) was used to display the state of the cellular automaton at various phases of the simulation. Results from the simulation are collected and displayed in each of the following ways:
 <ul>
 <li>CImg Animation: Shows a live, animated view of the cellular automaton so that the behavior of the model can be more easily assessed
 <li>HTML File: Contains tables to show the state of the cellular automaton for each simulated day of the epidemic in a graphical manner</li>
