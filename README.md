@@ -34,7 +34,7 @@ Simulation Parameters:
 </ul>
 
 <h3>Introduction</h3>
-A cellular automaton was utilized in a computer program to simulate the spread of infectious diseases through a population of susceptible entities. By definition, a cellular automaton consists of a grid of cells in which each cell may be in varying states. There may be any number of dimensions used for the grid, and each cell has the ability to impact the states of surrounding cells (called a neighborhood) based upon established rules. The rules used for this project will be discussed in detail within section 2 of this document.
+A cellular automaton was utilized in a computer program to simulate the spread of infectious diseases through a population of susceptible entities. By definition, a cellular automaton consists of a grid of cells in which each cell may be in varying states. There may be any number of dimensions used for the grid, and each cell has the ability to impact the states of surrounding cells (called a neighborhood) based upon established rules. The rules used for this project will be discussed in detail within the "Considerations" section of this document.
 <br><br>
 Performing a simulation allowed for the collection of data such as the average number of susceptible, infected, immune, deceased, and vaccinated entities each day. The collected data was then used to construct a line graph that showed the associated SIR model for the disease being simulated.
 <br><br>
