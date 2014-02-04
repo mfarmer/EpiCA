@@ -15,10 +15,10 @@
 
 <ol>
 <li>Clone the project<br/>
-<code>git clone git://github.com/MFarmer/EpiViz.git</code>
+<code>git clone git://github.com/MFarmer/EpiCA.git</code>
 </li>
 <li>Compile (Mac)
-<code>g++ -o epiViz main.cpp disease.cpp entity.cpp simulation.cpp zone.cpp -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -fopenmp
+<code>g++ -o epiCA main.cpp disease.cpp entity.cpp simulation.cpp zone.cpp -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -fopenmp
 </code></li>
 <li>Execute<br/><code>./epiViz</code></li>
 </ol>
